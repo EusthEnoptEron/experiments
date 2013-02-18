@@ -4,23 +4,85 @@
 		<title>IMG test</title>
 
 		<script>
-		
+
 		window.addEventListener("load", function() {
 			var canvas = document.getElementById("canvas");
 			var ctx = canvas.getContext("2d");
-			
-	
+
+			var margin = 50;
+			var resolution = 10;
+			var lineCount = margin * 2 * 4;
+
+
 			var img = new Image();
+			img.crossOrigin = ''; // no credentials flag.
+
 			img.src = "http://hhhhold.com/400-550";
 			img.addEventListener("load", function() {
-				
+				drawImage();
+				window.addEventListener("mousemove", function(e) {
+					drawImage(e.clientX, e.clientY);
+				});
 			});
+	
+			function sampleColor(data, x, y) {
+				var rgb = [0,0,0];
+				var pxls = margin * 2 / resolution;
+				var offset = y * lineCount * pxls + x * 4 * pxls;
+
+
+				for(var i = 0; i < pxls; i++ ) {
+					for(var j = 0; j < pxls; j++ ) {
+						rgb[0] += data.data[i * 4 + j * lineCount + offset];
+						rgb[1] += data.data[i * 4 + j * lineCount + offset + 1];
+						rgb[2] += data.data[i * 4 + j * lineCount + offset + 2];
+					}
+				}
+				rgb[0] /= pxls * pxls;
+				rgb[1] /= pxls * pxls;
+				rgb[2] /= pxls * pxls;
+
+				return rgb;
+			}
+
+			function colorPixel(data, x, y, rgb) {
+				var pxls = (margin * 2) / resolution;
+				var offset = x * pxls * 4 + y * lineCount * pxls;
+
+				for(var i = 0; i < pxls; i++ ) {
+					for(var j = 0; j < pxls; j++ ) {
+						data.data[i * 4 + j * lineCount + offset]     = rgb[0];
+						data.data[i * 4 + j * lineCount + offset + 1] = rgb[1];
+						data.data[i * 4 + j * lineCount + offset + 2] = rgb[2];
+					}
+				}
+			}
+
+			function drawImage(x, y) {
+				
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.drawImage(img, 0, 0);
+
+				if(x && y) {
+					var data = ctx.getImageData(x - margin, y - margin, margin * 2, margin * 2);
+					
+					for(var i = 0; i < resolution; i++) {
+						for(var j = 0; j < resolution; j++) {
+							var rgb = sampleColor(data, i, j);
+
+							colorPixel(data, i, j, rgb);
+						}
+					}
+
+					ctx.putImageData(data, x - margin, y - margin);	
+				}
+			}
 			
 		});
 
 		</script>
 	</head>
 	<body>
-		<canvas width="500" height="300" id="canvas"></canvas>
+		<canvas width="800" height="300" id="canvas"></canvas>
 	</body>
 </html>
