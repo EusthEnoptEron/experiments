@@ -10,10 +10,10 @@
 			var ctx = canvas.getContext("2d");
 
 			var margin = 50;
-			var resolution = 5;
+			// var resolution = 5;
 			var lineCount = margin * 2 * 4;
 			var timer = new Timer();
-
+			var mouse = {x: 0, y: 0};
 			var img = new Image();
 			img.crossOrigin = ''; // no credentials flag.
 
@@ -21,8 +21,15 @@
 			img.addEventListener("load", function() {
 				drawImage();
 				window.addEventListener("mousemove", function(e) {
-					drawImage(e.clientX, e.clientY);
+					mouse.x = e.clientX;
+					mouse.y = e.clientY;
 				});
+
+				function animate() {
+					drawImage(mouse.x, mouse.y);
+				}
+				setInterval(animate, 50);
+
 			});
 		
 
@@ -83,12 +90,13 @@
 				
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.drawImage(img, 0, 0);
-				var blockWidth = margin * 2 / resolution;
+				var blocks = Math.floor(Math.random()*9+4);
+				var blockWidth = Math.floor(margin * 2 / blocks);
 				if(x && y) {
 					var data = ctx.getImageData(x - margin, y - margin, margin * 2, margin * 2);
 					
-					for(var i = 0; i < resolution; i++) {
-						for(var j = 0; j < resolution; j++) {
+					for(var i = 0; i < blocks; i++) {
+						for(var j = 0; j < blocks; j++) {
 							// timer.stop();
 							var rgb = sampleColor(data, i * blockWidth, j * blockWidth, blockWidth, blockWidth);
 							// timer.stop("Sampling");
