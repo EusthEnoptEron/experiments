@@ -4,6 +4,9 @@
 		<title>IMG test</title>
 
 		<script>
+		window.URL = window.URL || window.webkitURL;
+			navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+			                          navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 		window.addEventListener("load", function() {
 			var canvas = document.getElementById("canvas");
@@ -15,27 +18,14 @@
 			var timer = new Timer();
 			var mouse = {x: 0, y: 0};
 
-
-			window.URL = window.URL || window.webkitURL;
-			navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia ||
-			                          navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
 			var video = document.querySelector('video');
 
 			if (navigator.getUserMedia) {
 			  navigator.getUserMedia({audio: false, video: true}, function(stream) {
 			    video.src = window.URL.createObjectURL(stream);
 			  }, function() {} );
-			} else {
-				console.log("omg");
-			  //video.src = 'somevideo.webm'; // fallback.
 			}
 
-
-			// var img = new Image();
-			// img.crossOrigin = ''; // no credentials flag.
-
-			// img.src = "http://hhhhold.com/400-550";
 			video.addEventListener("play", function() {
 				drawImage(video, 0, 0);
 				window.addEventListener("mousemove", function(e) {
@@ -105,7 +95,6 @@
 
 
 			function drawImage(img, x, y) {
-				
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.drawImage(img, 0, 0);
 				var blocks = Math.floor(Math.random()*9+4);
