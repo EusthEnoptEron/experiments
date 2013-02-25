@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+	<head>
+		<title>3D</title>
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script>
+		$(function() {
+			var canvas = document.createElement("canvas");
+			canvas.width  = window.innerWidth;
+			canvas.height = window.innerHeight;
+			canvas.id = "bg";
+			var ctx = canvas.getContext("2d");
+
+			$("body").on("keyup", "#text", function() {
+				$(this).attr("rows", this.value.split("\n").length + 3 );
+			}).append(canvas);
+			
+
+			var starCount = 1000;
+			var stars = [];
+			var simpleStars = [];
+
+			for(var i = 0; i < starCount; i++) {
+				var x = Math.random() * canvas.width;
+				var y = Math.random() * canvas.height;
+				if(Math.random() < 0.9) {
+					simpleStars.push([x,y]);
+				} else {
+					stars.push(new Star(x,y));
+				}
+			}
+
+			function animate() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				simpleStars.forEach(function(el) {
+					ctx.beginPath();
+					ctx.arc( el[0], 
+						     el[1],
+						     Math.random() * 0.5 + 0.5,
+						     0, 2 * Math.PI );
+					var type = Math.random();
+					if(type < 0.8) {
+						ctx.fillStyle = "white";
+					} else if(type < 0.9) {
+						ctx.fillStyle = "red";
+					}
+					ctx.fill();
+				});/*
+				stars.forEach(function(el) {
+					el.draw(ctx);
+				});*/
+
+				requestAnimationFrame(animate);
+			}
+			animate();
+		});
+		function Star(x,y) {
+			this.x = x;
+			this.y = y;
+		}
+		Star.prototype = {
+			draw: function(ctx) {
+				
+			}
+		};
+		</script>
+		<style>
+		body {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+			text-align: center;
+			/*background: #012;*/
+		}
+		#bg {
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: -1;
+			background: -webkit-gradient(linear, 0 0, 100% 100%, from(#023), to(#011));
+			background: -webkit-linear-gradient(left top, #023, #011);
+			background: -moz-linear-gradient(left top, #023, #011);
+			background: -o-linear-gradient(left top, #023, #011);
+			background: linear-gradient(left top, #023, #011); 
+		}
+		textarea {
+			font-family: Impact, sans-serif;
+			border: none;
+			background: none;
+			outline: none;
+			/*font-weight: bold;*/
+			font-size: 1.5em;
+			color: #FBFF62;
+			
+			-webkit-transform: rotateX(45deg) ;
+			-webkit-transform-origin: 50% 0%;
+		}
+		</style>
+	</head>
+	<body>
+		<div style="-webkit-perspective: 500">
+			<textarea name="text" id="text" cols="80" rows="10"></textarea>
+		</div>
+	</body>
+</html>
