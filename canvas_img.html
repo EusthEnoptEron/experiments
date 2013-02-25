@@ -9,23 +9,43 @@
 		}
 		</style>
 		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-		<script src="libs/color.js"></script>
+		
 		<script>
+		function shiftColor(r, g, b, dh, sat, val) {
+			var vsu = val*sat*Math.cos(dh*Math.PI/180);
+		    var vsw = val*sat*Math.sin(dh*Math.PI/180);
+
+			return [
+				(.299*val+.701*vsu+.168*vsw)*r
+		        + (.587*val-.587*vsu+.330*vsw)*g
+		        + (.114*val-.114*vsu-.497*vsw)*b,
+
+		        (.299*val-.299*vsu-.328*vsw)*r
+	        + (.587*val+.413*vsu+.035*vsw)*g
+	        + (.114*val-.114*vsu+.292*vsw)*b,
+
+	        (.299*val-.3*vsu+1.25*vsw)*r
+	        + (.587*val-.588*vsu-1.05*vsw)*g
+	        + (.114*val+.886*vsu-.203*vsw)*b
+			];
+		}
+
 		$(function() {
 			var canvas = document.getElementById("canvas");
 			var ctx = canvas.getContext("2d");
-			var Color = net.brehaut.Color;
 			var props = {
-				brightness: 1,
-				contrast: 1,
-				hue: 1
+				brightness: 0,
+				value: 1,
+				hue: 0,
+				saturation: 1
 			};
 
 			var mouse = {x: 0, y: 0};
 			var img = new Image();
 			img.crossOrigin = ''; // no credentials flag.
-
+// 
 			img.src = "http://hhhhold.com/400-550";
+			
 			$(img).on("load", function() {
 				drawImage(img);
 				var timeout;
@@ -45,17 +65,26 @@
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.drawImage(img, 0, 0);
 				var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-				
+				var cols = data.data;
 				var st = new Date();
 				for(var i = 0; i < canvas.width; i++) {
 					for(var j = 0; j < canvas.height; j++) {
 						
 						var x = i * 4;
 						var y = j * 4 * canvas.width;
-		
-						data.data[x + y]     *= props.brightness;
-						data.data[x + y + 1] *= props.brightness;
-						data.data[x + y + 2] *= props.brightness;
+						
+						var max = props.brightness < 0 ? 0 : 255;
+						var factor = props.brightness < 0 ? -props.brightness : props.brightness;
+						
+						cols[x + y]     += (max - cols[x + y]) * factor;
+						cols[x + y + 1] += (max - cols[x + y + 1]) * factor;
+						cols[x + y + 2] += (max - cols[x + y + 2]) * factor;
+	
+						var col = shiftColor(cols[x + y], cols[x + y + 1], cols[x + y + 2],	props.hue, props.saturation, props.value);
+
+						cols[x + y] = col[0];
+						cols[x + y + 1] = col[1];
+						cols[x + y + 2] = col[2];
 					}
 				}
 				console.log(new Date() - st);
@@ -71,15 +100,19 @@
 		<aside>
 			<div>
 				<label for="hue">Hue:</label>
-				<input id="hue" type="range" value="1" min="0" max="2" step="0.01" />
+				<input id="hue" type="range" value="0" min="-160" max="160" step="1" />
 			</div>
 			<div>
 				<label for="brightness">Brightness:</label>
-				<input id="brightness" type="range" value="1" min="0" max="2" step="0.01" />
+				<input id="brightness" type="range" value="0" min="-1" max="1" step="0.01" />
 			</div>
 			<div>
-				<label for="contrast">Contrast:</label>
-				<input id="contrast" type="range" value="1" min="0" max="2" step="0.01" />
+				<label for="value">Value:</label>
+				<input id="value" type="range" value="1" min="0" max="2" step="0.01" />
+			</div>
+			<div>
+				<label for="saturation">Saturation:</label>
+				<input id="saturation" type="range" value="1" min="0" max="2" step="0.01" />
 			</div>
 		</aside>
 
