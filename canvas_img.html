@@ -2,114 +2,65 @@
 <html>
 	<head>
 		<title>IMG test</title>
-
+		<style>
+		label {
+			width: 100px;
+			display: inline-block;
+		}
+		</style>
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="libs/color.js"></script>
 		<script>
-
-		window.addEventListener("load", function() {
+		$(function() {
 			var canvas = document.getElementById("canvas");
 			var ctx = canvas.getContext("2d");
+			var Color = net.brehaut.Color;
+			var props = {
+				brightness: 1,
+				contrast: 1,
+				hue: 1
+			};
 
-			var margin = 50;
-			// var resolution = 5;
-			var lineCount = margin * 2 * 4;
-			var timer = new Timer();
 			var mouse = {x: 0, y: 0};
 			var img = new Image();
 			img.crossOrigin = ''; // no credentials flag.
 
 			img.src = "http://hhhhold.com/400-550";
-			img.addEventListener("load", function() {
-				drawImage();
-				window.addEventListener("mousemove", function(e) {
-					mouse.x = e.clientX;
-					mouse.y = e.clientY;
+			$(img).on("load", function() {
+				drawImage(img);
+				var timeout;
+				$("body").on("change", "input[type=range]", function(e) {
+					clearTimeout(timeout);
+					if(this.id in props) {
+						props[this.id] = this.value * 1;
+					}
+					
+					// timeout = setTimeout(drawImage.bind(null, img), 50);
+					drawImage(img);
 				});
-
-				function animate() {
-					drawImage(mouse.x, mouse.y);
-				}
-				setInterval(animate, 50);
-
 			});
-		
-
-			function sampleColor(data, x, y, width, height) {
-				var rgb = [0,0,0];
-				var offset = y * lineCount + x * 4;
-
-				for(var i = 0; i < width; i++ ) {
-					for(var j = 0; j < height; j++ ) {
-						rgb[0] += data.data[offset + i * 4 + j * lineCount];
-						rgb[1] += data.data[offset + i * 4 + j * lineCount + 1];
-						rgb[2] += data.data[offset + i * 4 + j * lineCount + 2];
-					}
-				}
-				rgb[0] /= width * height;
-				rgb[1] /= width * height;
-				rgb[2] /= width * height;
-
-				return rgb;	
-			}
 			
-			function colorPixel (data, x, y, width, height, rgb) {
-				var offset = y * lineCount + x * 4;
-
-				for(var i = 0; i < width; i++ ) {
-					for(var j = 0; j < height; j++ ) {
-						data.data[offset + i * 4 + j * lineCount] = rgb[0];
-						data.data[offset + i * 4 + j * lineCount + 1] = rgb[1];
-						data.data[offset + i * 4 + j * lineCount + 2] = rgb[2];
-					}
-				}	
-			}
-			function Timer () {
-				var lastDate = new Date();
-				var stats    = {};
-
-				this.stop = function(name) {
-					var newDate = new Date();
-					var diff = newDate - lastDate;
-					lastDate = newDate;
-
-					if(name) {
-						if(!(name in stats)) stats[name] = {calls: 0, duration: 0};
-						stats[name].calls++;
-						stats[name].duration += diff;
-					}
-
-					return diff;
-				}
-
-				this.log = function(name) {
-					console.log(name, "Calls: ", stats[name].calls, "Duration (tot):", stats[name].duration ,"Duration (avg)", stats[name].duration / stats[name].calls);
-				}
-			}
-
-
-			function drawImage(x, y) {
-				
+			function drawImage(img) {
+				var st = new Date(), en = new Date();
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.drawImage(img, 0, 0);
-				var blocks = Math.floor(Math.random()*9+4);
-				var blockWidth = Math.floor(margin * 2 / blocks);
-				if(x && y) {
-					var data = ctx.getImageData(x - margin, y - margin, margin * 2, margin * 2);
-					
-					for(var i = 0; i < blocks; i++) {
-						for(var j = 0; j < blocks; j++) {
-							// timer.stop();
-							var rgb = sampleColor(data, i * blockWidth, j * blockWidth, blockWidth, blockWidth);
-							// timer.stop("Sampling");
-							// timer.stop();
-							colorPixel(data, i * blockWidth, j * blockWidth, blockWidth, blockWidth, rgb);
-							// timer.stop("Coloring");
-						}
+				var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+				
+				var st = new Date();
+				for(var i = 0; i < canvas.width; i++) {
+					for(var j = 0; j < canvas.height; j++) {
+						
+						var x = i * 4;
+						var y = j * 4 * canvas.width;
+		
+						data.data[x + y]     *= props.brightness;
+						data.data[x + y + 1] *= props.brightness;
+						data.data[x + y + 2] *= props.brightness;
 					}
-					// timer.log("Sampling");
-					// timer.log("Coloring");
-
-					ctx.putImageData(data, x - margin, y - margin);	
 				}
+				console.log(new Date() - st);
+				
+				ctx.putImageData(data, 0, 0);
 			}
 			
 		});
@@ -117,6 +68,21 @@
 		</script>
 	</head>
 	<body>
+		<aside>
+			<div>
+				<label for="hue">Hue:</label>
+				<input id="hue" type="range" value="1" min="0" max="2" step="0.01" />
+			</div>
+			<div>
+				<label for="brightness">Brightness:</label>
+				<input id="brightness" type="range" value="1" min="0" max="2" step="0.01" />
+			</div>
+			<div>
+				<label for="contrast">Contrast:</label>
+				<input id="contrast" type="range" value="1" min="0" max="2" step="0.01" />
+			</div>
+		</aside>
+
 		<canvas width="800" height="300" id="canvas"></canvas>
 	</body>
 </html>
