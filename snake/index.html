@@ -8,6 +8,9 @@
 			margin: 0;
 			padding: 0;
 		}
+		/**
+		 * Score window.
+		 */
 		#points {
 			position: absolute;
 			top: 10px;
@@ -28,11 +31,14 @@
 		<script src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 
 		<script>
+		// enum for modes
 		var mode = {
 			running: 1,
 			gameover: 2,
 			bomb: 3
 		};
+
+		// collection for game vars
 		var game = {
 			world: null,
 			mode: mode.running,
@@ -58,21 +64,27 @@
 				return game._points || 0;
 			},
 			set points(p) {
+				// automatically update score window
 				game._points = p;
 				$("#points").text(p);
 			}
 		};
+
+		// Vector that points to the center of the game field.
 		game.center = new THREE.Vector3(
 							(game.settings.blocks.x - 1) / 2,
 							(game.settings.blocks.y - 1)  / 2,
 							(game.settings.blocks.z - 1) / 2
 						);
+
+		// Area the game field consists of
 		game.bounds = {low: new THREE.Vector3(0,0,0),
 					high: new THREE.Vector3(game.settings.blocks.x - 1,
 										game.settings.blocks.y - 1,
 										game.settings.blocks.z - 1)};
 
 		var clock = new THREE.Clock();
+
 		var mouse = {
 			x : 0,
 			y: 0,
@@ -141,7 +153,7 @@
 					
 
 					if(this.onOrientationChange) {
-						//TODO: implement real even tsystem
+						//TODO: implement real event system
 						this.onOrientationChange(normal, game.view.normal);
 					}
 				}},
@@ -390,16 +402,10 @@
 
 				// Camera
 				game.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-				// game.camera.position.z = 8;
-				// game.camera.position.y = 5;
-				// game.camera.position.x = 8;
 				game.camera.angle = 0;
 				game.camera.distance = 8;
 				game.camera.up = new THREE.Vector3(0,0,-1);
-				// game.camera.rotation.z = Math.PI / 2;
 				
-				// game.camera.lookAt(game.world.position);
-
 				// Renderer
 				game.renderer = new THREE.WebGLRenderer({antialias: true});
 				game.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -407,8 +413,6 @@
 				game.renderer.shadowMapEnabled = true;
 				document.body.appendChild(game.renderer.domElement);
 
-				
-				
 				// Create world
 				createWorld();
 				createSnake();
@@ -421,29 +425,24 @@
 
 			function createWorld() {
 				// createAxes();
+				
+				// Create lights
 				var light = new THREE.SpotLight( 0xFF9999, 0.6 );
 				light.position.copy(game.center).setY(10);
-				// light.position.setY(5);
 				light.castShadow = true;
 				light.target.position.copy(game.center).setY(0);
-				// light.shadowDarkness = 1;
-				// light.shadowCameraVisible = true;
-
 
 				var pointLight = new THREE.PointLight( 0xFF9999, 0.4 );
 				pointLight.position.copy(game.center);
 
-
-				// var gui = new dat.GUI();
-				// gui.add(light, "angle", -Math.PI*2, Math.PI*2);
-
 				var ambient = new THREE.AmbientLight( 0x222222 );
-
+					
+				// Create field
 				var grassTexture = THREE.ImageUtils.loadTexture("textures/grass.jpg");
 				grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
-				// grassTexture.needsUpdate = true;
 				grassTexture.repeat.set(5,5);
-
+				
+				// Randomly generate a terrain (the farther the higher)
 				var grassGeometry = new THREE.PlaneGeometry( 100, 100, 50, 50);
 				for ( var i = 0, l = grassGeometry.vertices.length; i < l; i ++ ) {
 					var vertice = grassGeometry.vertices[ i ];
@@ -463,12 +462,9 @@
 				grass.position.setY(-2);
 				grass.receiveShadow = true;
 
-				// game.world.matrix.translate(-game.settings.blocks.x / 2,
-				// 					 -game.settings.blocks.y / 2,
-				// 					 -game.settings.blocks.x / 2);
 				
 				var container = new THREE.Object3D();
-
+				// Create blocks
 				for(var x = 0; x < game.settings.blocks.x; x++) {
 					for(var z = 0; z < game.settings.blocks.z; z++) {
 						for(var y = 0; y < game.settings.blocks.y; y++) {
@@ -488,53 +484,21 @@
 					}
 				}
 
-				//Create clouds
+				// Create clouds
 				var geometry = new THREE.SphereGeometry( 50, 50, 50);
 				var texture = THREE.ImageUtils.loadTexture( 'textures/cloud10.png' );
 				texture.magFilter = THREE.LinearMipMapLinearFilter;
 				texture.minFilter = THREE.LinearMipMapLinearFilter;
 
-				// var material = new THREE.ShaderMaterial( {
-				// 	uniforms: {
-
-				// 		"map": { type: "t", value:2, texture: texture },
-				// 		"fogColor" : { type: "c", value: fog.color },
-				// 		"fogNear" : { type: "f", value: fog.near },
-				// 		"fogFar" : { type: "f", value: fog.far },
-
-				// 	},
-				// 	vertexShader: document.getElementById( 'vs' ).textContent,
-				// 	fragmentShader: document.getElementById( 'fs' ).textContent,
-				// 	depthTest: false
-				// } );
 				var material = new THREE.MeshBasicMaterial( { color: game.skyColor, map: texture, side: THREE.BackSide});
-				// console.log(material);
-				// material.skinning = true;
+
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-				// texture.repeat.set(1,4);
-				// texture.offset.set(1,5);
-				
-				// material.opacity = 0.8;
-				// for(var i = 0; i < geometry.faces; i++) {
-				// 	geometry.faces[i].normal.negate();
-				// 	geometry.faces[i].vertexNormals[0].negate();
-				// 	geometry.faces[i].vertexNormals[1].negate();
-				// 	geometry.faces[i].vertexNormals[2].negate();
-				// }
-				// console.log(geometry);
 
 				var mesh = game.sky = new THREE.Mesh( geometry, material );
 				mesh.rotation.x = -Math.PI;
-				// console.log(mesh);
-				// var gui = new dat.GUI();
-				// gui.add(texture.repeat, "x", 0, 10);
-				// gui.add(texture.repeat, "y", 0, 10);
-				// gui.add(mesh.rotation, "z", -2*Math.PI, 2*Math.PI);
-	
+
+				// Add objects
 				game.world.add(mesh);
-			
-	
-				// game.world.add(container);
 				game.world.add(light);
 				game.world.add(pointLight);
 				game.world.add(ambient);
