@@ -1,1 +1,3 @@
-window.App = {};
+window.App = {
+	socket: io.connect(window.location)
+};

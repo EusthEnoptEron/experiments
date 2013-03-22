@@ -1,36 +1,63 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: /*#f5f5f5*/url(../images/pattern.png);
+
 }
 
 a {
   color: #00B7FF;
 }
 
+.container {
+	padding: 15px;
+	/*background: rgba(255,255,255,0.3);*/
+	/*background: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(255,255,255,0.3)), to(rgba(255,255,255,0.6)));
+	background: -webkit-linear-gradient(rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.6) 100%);
+	background: -moz-linear-gradient(rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.6) 100%);
+	background: -o-linear-gradient(rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.6) 100%);*/
+	/*background: linear-gradient(rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);*/
+	background: -webkit-linear-gradient(rgba(4, 156, 219,0.5) 0%, rgba(4, 156, 219,0.8) 100%);
+	border-radius: 5px;
+	border: 5px solid rgb(4, 156, 219);
+	box-shadow: 0 20px 10px 15px rgba(100,100,150,0.2);
+}
 #chat {
-	display: flex;
+	/*display: flex;
 	display: -webkit-flex;
 	flex-direction: column;
-	-webkit-flex-direction: column;
-	height: 300px;
-	width: 100%;
+	-webkit-flex-direction: column;*/
+	height: 500px;
+	/*width: 100%;*/
+
+	/*background: white;*/
 }
 
-#chatroom {
-	flex: 5;
-	-webkit-flex: 5;
-	
+#chatroom, #userlist {
+	height: 360px;
+
+	background: white;
+	border: 1px solid #e3e3e3;
+	border-radius: 5px;
+	margin: 0;
+	margin-bottom: 5px;
+	/*padding: 0;*/
 }
 
+#input {
+		background-color: rgba(255,255,255,0.5) ;
+		border: none;
+}
 #input input[name=body] {
 	box-sizing: border-box;
-	height: 25px;
 	width: 100%;
+	height: 30px;
 }
 
 #chatroom li {
-	display: flex;
-	display: -webkit-flex;
+	list-style-type: none;
+/*	display: flex;
+	display: -webkit-flex;*/
 	/*
 	-webkit-box-orient: horizontal;
 	-moz-box-orient: horizontal;
@@ -46,10 +73,10 @@ a {
 }
 
 #chatroom li > b {
-	width: 200px;
-	display: block;
-	flex: 1;
-	-webkit-flex: 1;
+	/*width: 200px;*/
+	/*display: block;*/
+	/*flex: 1;*/
+	/*-webkit-flex: 1;*/
 	text-align: right;
 	margin-right: 10px;
 	border-right: 1px dotted #CCC;
@@ -61,9 +88,9 @@ a {
 
 #chatroom li > span {
 	/*width: 100%;*/
-	display: block;
-	flex: 5;
-	-webkit-flex: 5;
+	/*display: block;*/
+	/*flex: 5;*/
+	/*-webkit-flex: 5;*/
 }
 
 

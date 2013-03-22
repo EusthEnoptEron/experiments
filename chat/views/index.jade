@@ -7,10 +7,16 @@ block content
 	script(type='text/template', id='template-message')
 		b <%- name %>
 		span <%- body %>
-	#chat.well.well-small
-		ul#chatroom
-		form#input(onsubmit="return false")
-			input(type="text", name="body")
+	script(type='text/template', id='template-user-in-list')
+		li <%- name %>
+	.container#chat
+		.span9
+			ul#chatroom.well
+		.span2
+			ul#userlist.well
+		.span11
+			form#input.form-horizontal.well(method="post")
+					input(type="text", name="body")
 		#loginForm.modal.hide.fade(role="dialog")
 			.modal-body
 				h3 Tell us who you are!

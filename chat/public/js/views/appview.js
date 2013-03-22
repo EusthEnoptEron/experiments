@@ -6,10 +6,10 @@ var Status = {
 App.AppView = Backbone.View.extend({
 	el: "#chat",
 	events: {
-		"submit form": "post",
+		"submit #input": "post",
 		"submit #loginForm form": "login"
 	},
-	socket: io.connect(window.location),
+	socket: App.socket,
 	initialize: function(config) {
 		this.list = this.$el.find("#chatroom");
 		this.input = this.$el.find("input[name=body]");
@@ -24,6 +24,11 @@ App.AppView = Backbone.View.extend({
 		this.socket.on("handshake", this.handleHandshake.bind(this));
 
 		this.setStatus(Status.Preparing);
+
+		this.render();
+	},
+	render: function() {
+		this.userlist = new App.UserlistView().render();
 	},
 	addMessage: function(model) {
 		var view = new App.MessageView({
@@ -51,7 +56,6 @@ App.AppView = Backbone.View.extend({
 		return false;
 	},
 	login: function(e) {
-		console.log("oh boy, here we go");
 		this.socket.emit("login", 
 			$("[name=username]").val());
 
