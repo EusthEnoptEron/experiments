@@ -1,6 +1,7 @@
 var Status = {
 	Preparing: 0,
-	Ready: 1
+	Login: 1,
+	Ready: 2
 };
 App.AppView = Backbone.View.extend({
 	el: "#chat",
@@ -20,6 +21,7 @@ App.AppView = Backbone.View.extend({
 		
 		this.socket.on('post', this.onMessage);
 		this.socket.on("login", this.handleLogin.bind(this));
+		this.socket.on("handshake", this.handleHandshake.bind(this));
 
 		this.setStatus(Status.Preparing);
 	},
@@ -49,6 +51,7 @@ App.AppView = Backbone.View.extend({
 		return false;
 	},
 	login: function(e) {
+		console.log("oh boy, here we go");
 		this.socket.emit("login", 
 			$("[name=username]").val());
 
@@ -62,11 +65,16 @@ App.AppView = Backbone.View.extend({
 			alert("INVALID NICK!");
 		}
 	},
+	handleHandshake: function(res) {
+		if(res.newUser) {
+			this.setStatus(Status.Login);
+		}
+	},
 	setStatus: function(status) {
 		if(status != this.status) {
 			this.status = status;
 
-			if(status == Status.Preparing) {
+			if(status == Status.Login) {
 				$('#loginForm').modal("show");
 				$("[name=username]").focus();
 
