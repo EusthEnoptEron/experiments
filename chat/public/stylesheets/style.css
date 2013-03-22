@@ -1,0 +1,72 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#chat {
+	display: flex;
+	display: -webkit-flex;
+	flex-direction: column;
+	-webkit-flex-direction: column;
+	height: 300px;
+	width: 100%;
+}
+
+#chatroom {
+	flex: 5;
+	-webkit-flex: 5;
+	
+}
+
+#input input[name=body] {
+	box-sizing: border-box;
+	height: 25px;
+	width: 100%;
+}
+
+#chatroom li {
+	display: flex;
+	display: -webkit-flex;
+	/*
+	-webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
+	-ms-box-orient: horizontal;
+	box-orient: horizontal;
+	-webkit-box-align: stretch;
+	-moz-box-align: stretch;
+	-ms-box-align: stretch;
+	box-align: stretch;
+	*/
+	/*width: 500px;
+	*/
+}
+
+#chatroom li > b {
+	width: 200px;
+	display: block;
+	flex: 1;
+	-webkit-flex: 1;
+	text-align: right;
+	margin-right: 10px;
+	border-right: 1px dotted #CCC;
+}
+
+#chatroom li > b:after {
+	content: ":";
+}
+
+#chatroom li > span {
+	/*width: 100%;*/
+	display: block;
+	flex: 5;
+	-webkit-flex: 5;
+}
+
+
+form {
+	margin: 0;
+}

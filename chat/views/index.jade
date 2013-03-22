@@ -1,0 +1,20 @@
+extends layout
+
+block content
+	//
+		h1 Simple Chat
+		p This is a damn simple chat.
+	script(type='text/template', id='template-message')
+		b <%- name %>
+		span <%- body %>
+	#chat.well.well-small
+		ul#chatroom
+		form#input(onsubmit="return false")
+			input(type="text", name="body")
+		#loginForm.modal.hide.fade(role="dialog")
+			.modal-body
+				h3 Tell us who you are!
+				form.form-search
+					input(type="text", name="username")
+					&nbsp;
+					button.btn.btn-primary(type="submit") Let me in!
