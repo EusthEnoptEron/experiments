@@ -54,6 +54,10 @@ a {
 	height: 30px;
 }
 
+#chatroom {
+	overflow: auto;
+}
+
 #chatroom li {
 	list-style-type: none;
 /*	display: flex;

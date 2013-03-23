@@ -12,7 +12,11 @@ App.AppView = Backbone.View.extend({
 	},
 	socket: App.socket,
 	initialize: function(config) {
-		this.list = this.$el.find("#chatroom");
+		this.list = this.$el.find("#chatroom")
+					.on("scroll", this.scroll.bind(this));
+
+		this.freeScroll = false;
+
 		this.input = this.$el.find("input[name=body]");
 		// this.messages = [];
 		this.canvas = {};
@@ -39,6 +43,7 @@ App.AppView = Backbone.View.extend({
 		});
 
 		this.list.append(view.render().el);
+		this.scrollDown();
 	},
 	onMessage: function(data) {
 		var model = new App.Message(data);
@@ -65,6 +70,23 @@ App.AppView = Backbone.View.extend({
 		}
 		return false;
 	},
+	scroll: function(e) {
+		var scrollableHeight = this.list.prop("scrollHeight")
+							  -this.list.innerHeight();
+
+		if(this.list.scrollTop() < scrollableHeight) {
+			this.freeScroll = true;
+		} else {
+			this.freeScroll = false;
+		}
+	},
+	scrollDown: function() {
+		if(!this.freeScroll) {
+			var scrollableHeight = this.list.prop("scrollHeight")
+							  -this.list.innerHeight();
+			this.list.scrollTop(scrollableHeight);
+		}
+	},
 	login: function(e) {
 		this.socket.emit("login", 
 			$("[name=username]").val());
@@ -75,7 +97,7 @@ App.AppView = Backbone.View.extend({
 		if(res.success) {
 			this.name = res.name;
 			App.user = this.name;
-			
+
 			this.setStatus(Status.Ready);
 		} else {
 			alert("INVALID NICK!");
@@ -93,6 +115,7 @@ App.AppView = Backbone.View.extend({
 			this.canvas[id] = new App.CanvasView({id: id}).render();
 			// console.log(this.canvas[id]);
 			this.list.append(this.canvas[id].el);
+			this.scrollDown();
 		}
 	},
 	setStatus: function(status) {
