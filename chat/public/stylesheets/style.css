@@ -97,3 +97,8 @@ a {
 form {
 	margin: 0;
 }
+
+canvas {
+	border: 1px solid #e3e3e3;
+	border-radius: 2px;
+}

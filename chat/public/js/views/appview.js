@@ -1,3 +1,4 @@
+(function() {
 var Status = {
 	Preparing: 0,
 	Login: 1,
@@ -13,7 +14,8 @@ App.AppView = Backbone.View.extend({
 	initialize: function(config) {
 		this.list = this.$el.find("#chatroom");
 		this.input = this.$el.find("input[name=body]");
-		this.messages = [];
+		// this.messages = [];
+		this.canvas = {};
 
 
 		App.collection = new App.MessageCollection();
@@ -22,6 +24,7 @@ App.AppView = Backbone.View.extend({
 		this.socket.on('post', this.onMessage);
 		this.socket.on("login", this.handleLogin.bind(this));
 		this.socket.on("handshake", this.handleHandshake.bind(this));
+		this.socket.on("canvas_action", this.handleCanvasAction.bind(this));
 
 		this.setStatus(Status.Preparing);
 
@@ -44,12 +47,19 @@ App.AppView = Backbone.View.extend({
 	post: function(e) {
 		// Check input
 		if(this.input.val()) {
-			var data = {
-				name: this.name,
-				body: this.input.val()
-			};
-			this.socket.emit("post", data);
-			this.onMessage(data)
+			switch(this.input.val()) {
+				case "CANVAS":
+					this.socket.emit("request_canvas");
+					break;
+				default:
+					var data = {
+						name: this.name,
+						body: this.input.val()
+					};
+					this.socket.emit("post", data);
+					this.onMessage(data)
+					break;
+			}
 
 			this.input.val("");
 		}
@@ -64,6 +74,8 @@ App.AppView = Backbone.View.extend({
 	handleLogin: function(res) {
 		if(res.success) {
 			this.name = res.name;
+			App.user = this.name;
+			
 			this.setStatus(Status.Ready);
 		} else {
 			alert("INVALID NICK!");
@@ -72,6 +84,15 @@ App.AppView = Backbone.View.extend({
 	handleHandshake: function(res) {
 		if(res.newUser) {
 			this.setStatus(Status.Login);
+		}
+	},
+	handleCanvasAction: function(args) {
+		var id = args[id];
+		if(args.action == "create") {
+			// console.log("create");
+			this.canvas[id] = new App.CanvasView({id: id}).render();
+			// console.log(this.canvas[id]);
+			this.list.append(this.canvas[id].el);
 		}
 	},
 	setStatus: function(status) {
@@ -89,3 +110,5 @@ App.AppView = Backbone.View.extend({
 		}
 	}
 });
+
+})();

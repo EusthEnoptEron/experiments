@@ -47,6 +47,8 @@ var SessionSockets = require('session.socket.io')
 
 
 var users = [];
+var id_seed = 0;
+
 app.set("users", users);
 
 ssio.on('connection', function (err, socket, session) {
@@ -68,6 +70,7 @@ ssio.on('connection', function (err, socket, session) {
 		}
 	}
 
+	// HANDLE MESSAGES
 	socket.on("post", function(data) {
 		if(session.user) {
 			data.name = session.user;
@@ -75,6 +78,20 @@ ssio.on('connection', function (err, socket, session) {
 		}
 	});
 
+	// HANDLE CANVAS
+	socket.on("request_canvas", function() {
+		var id = "c_" + (id_seed++);
+		io.sockets.emit("canvas_action", {
+			id: id,
+			action: "create"
+		});
+	});
+
+	socket.on("canvas_action", function(config) {
+		socket.broadcast.emit("canvas_action", config);
+	});
+
+	// HANDLE LOGIN
 	socket.on("login", function(name) {
 		var success = false;
 
@@ -87,12 +104,16 @@ ssio.on('connection', function (err, socket, session) {
 		}
 		login(success);
 	});
+
+	// HANDLE DISCONNECT
 	socket.on('disconnect', function() {
 		var i = users.indexOf(session.user);
 		users.splice(i,1);
 		io.sockets.emit("user_leaves", session.user);
 	});
 
+
+	// CONSTRUCTOR
 	if(session.user) {
 		login(true);
 	}
