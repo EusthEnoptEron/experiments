@@ -5,12 +5,14 @@
 		<script src="libs/headtrackr.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/tweenjs/0.3.0/tween.min.js"></script>
 	</head>
 	<body>
-		<canvas id="inputCanvas" width="320" height="240" style="display:none"></canvas>
+		<canvas id="inputCanvas" width="320" height="240"></canvas>
 		<video id="inputVideo" style="display:none" autoplay loop></video>
 
 		<script>
+		var htracker;
 		$(function() {
 			var status = {
 				status: "!",
@@ -36,11 +38,15 @@
 				}
 				// console.log(status);
 				status.angle = e.angle;
+				onTilt(e.angle);
+
 			});
 
 
-			var htracker = new headtrackr.Tracker({
-				calcAngles: true
+			htracker = new headtrackr.Tracker({
+				calcAngles: true,
+				headPosition: false,
+				debug: canvasInput
 			});
 			htracker.init(videoInput, canvasInput);
 			htracker.start();
@@ -61,6 +67,7 @@
 				$("body").append(node.clone());
 			}
 
+			/*
 			setInterval(function() {
 				if(status.started) {
 					var angle = status.baseAngle - status.angle;
@@ -71,6 +78,19 @@
 					}
 				}
 			}, 100);
+			*/
+			function onTilt(angle) {
+				angle = status.baseAngle - angle;
+
+				var middle = [
+					window.innerWidth / 2 + window.scrollX,
+					window.innerHeight / 2 + window.scrollY
+				];
+
+				$("body").css("transform-origin", middle[0] + "px " + middle[1] + "px")
+						 .css("transform", "rotate("+angle+"rad)");
+
+			}
 
 		});
 		</script>
