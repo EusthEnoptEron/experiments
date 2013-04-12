@@ -46,7 +46,7 @@ var SessionSockets = require('session.socket.io')
 
 
 
-var users = [];
+var users = {};
 var id_seed = 0;
 
 app.set("users", users);
@@ -65,8 +65,12 @@ ssio.on('connection', function (err, socket, session) {
 			// io.sockets.emit("user_list", users);
 			io.sockets.emit("user_joins", session.user);
 
-			if(users.indexOf(session.user) == -1)
-				users.push(session.user);
+			if(!(session.user in users)) {
+				users[session.user] = {
+					color: "red",
+					viewport: []
+				};
+			}
 		}
 	}
 
@@ -76,6 +80,10 @@ ssio.on('connection', function (err, socket, session) {
 			data.name = session.user;
 			socket.broadcast.emit("post", data);
 		}
+	});
+
+	socket.on("notify", function() {
+
 	});
 
 	// HANDLE CANVAS
@@ -91,12 +99,14 @@ ssio.on('connection', function (err, socket, session) {
 		socket.broadcast.emit("canvas_action", config);
 	});
 
+
+
 	// HANDLE LOGIN
 	socket.on("login", function(name) {
 		var success = false;
 
 		if(!session.user) {
-			if(users.indexOf(name) == -1) {
+			if(!(name in users)) {
 				success = true;
 				session.user = name;
 				session.save();
@@ -107,8 +117,7 @@ ssio.on('connection', function (err, socket, session) {
 
 	// HANDLE DISCONNECT
 	socket.on('disconnect', function() {
-		var i = users.indexOf(session.user);
-		users.splice(i,1);
+		delete users[session.user];
 		io.sockets.emit("user_leaves", session.user);
 	});
 
