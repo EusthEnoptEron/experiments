@@ -97,6 +97,8 @@ App.AppView = Backbone.View.extend({
 		if(res.success) {
 			this.name = res.name;
 			App.user = this.name;
+			
+			this.windowObserver = new App.WindowView();
 
 			this.setStatus(Status.Ready);
 		} else {

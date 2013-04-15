@@ -82,8 +82,8 @@ ssio.on('connection', function (err, socket, session) {
 		}
 	});
 
-	socket.on("notify", function() {
-
+	socket.on("notify", function(data) {
+		socket.broadcast.emit("user_notify", session.user, data);
 	});
 
 	// HANDLE CANVAS
