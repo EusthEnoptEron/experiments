@@ -1,15 +1,18 @@
 App.WindowView = Backbone.View.extend({
 	el: $(window),
 	events: {
-		"resize" : "onResize",
-		"scroll" : "onResize"
+		"resize" : "resize",
+		"scroll" : "resize"
 	},
 	initialize: function() {
 		this.listenTo(App.users, "add", this.addUser);
-		App.socket.on("user_notify", function(user, notification) {
-			console.log(user, notification);
-		});
+		// App.socket.on("user_notify", function(user, notification) {
+		// 	console.log(user, notification);
+		// });
 		App.users.forEach(this.addUser, this);
+
+		// Trigger initial resize
+		this.resize();
 	},
 	addUser: function(user) {
 		if(user.get("name") != App.user) {
@@ -20,7 +23,7 @@ App.WindowView = Backbone.View.extend({
 	render: function() {
 		return this;
 	},
-	onResize: function() {
+	resize: function() {
 		App.socket.emit("notify", {viewport: this.getBounds()});
 		// App.user.set("viewport", this.getBounds());
 	},

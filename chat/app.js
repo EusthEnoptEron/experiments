@@ -67,7 +67,6 @@ ssio.on('connection', function (err, socket, session) {
 
 			if(!(session.user in users)) {
 				users[session.user] = {
-					color: "red",
 					viewport: []
 				};
 			}

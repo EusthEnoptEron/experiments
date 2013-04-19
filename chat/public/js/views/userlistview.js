@@ -9,6 +9,8 @@ App.UserlistView = Backbone.View.extend({
 
 		this.listenTo(this.users, "add", this.render);
 		this.listenTo(this.users, "remove", this.render);
+		// this.listenTo(this.users, "change:color", this.render);
+
 
 		this.listenTo(App.socket, "user_joins", this.onJoin.bind(this));
 		this.listenTo(App.socket, "user_leaves", this.onLeave.bind(this));

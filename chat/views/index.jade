@@ -5,20 +5,26 @@ block content
 		h1 Simple Chat
 		p This is a damn simple chat.
 	script(type='text/template', id='template-message')
-		b <%- name %>
+		b.username <%- name %>
 		span <%- body %>
 	script(type='text/template', id='template-user-in-list')
-		li <%- name %>
+		li.username(style!="border-color: <%- color %>") <%- name %>
 	script(type='text/template', id='template-canvas')
 		canvas(width="400", height="200")
+	//
+		.panel
+			.modal-header.handle
+				h3 Test
+				button.close
+			.modal-body
+				p Blablabla
 	.container#chat
-		.span9
-			ul#chatroom.well
-		.span2
-			ul#userlist.well
-		.span11
-			form#input.form-horizontal.well(method="post")
-					input(type="text", name="body")
+		.modal-header.handle
+			h3 Chat
+		ul#chatroom
+		ul#userlist.well
+		form#input.form-horizontal(method="post")
+				input(type="text", name="body")
 		#loginForm.modal.hide.fade(role="dialog")
 			.modal-body
 				h3 Tell us who you are!
