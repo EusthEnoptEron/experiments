@@ -11,13 +11,13 @@ block content
 		li.username(style!="border-color: <%- color %>") <%- name %>
 	script(type='text/template', id='template-canvas')
 		canvas(width="400", height="200")
-	//
+	script(type='text/template', id='template-panel')
 		.panel
 			.modal-header.handle
-				h3 Test
+				h3 <% header %>
 				button.close
 			.modal-body
-				p Blablabla
+				<% body %>
 	.container#chat
 		.modal-header.handle
 			h3 Chat
