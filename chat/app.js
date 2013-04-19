@@ -48,12 +48,13 @@ var SessionSockets = require('session.socket.io')
 
 var users = {};
 var id_seed = 0;
+var msg_id_seed = 0;
 
 app.set("users", users);
 
 ssio.on('connection', function (err, socket, session) {
 	if(err) return;
-
+	console.log("CONNECT");
 	var logged = false;
 	function login(success) {
 		if(!logged) {
@@ -77,21 +78,24 @@ ssio.on('connection', function (err, socket, session) {
 	socket.on("post", function(data) {
 		if(session.user) {
 			data.name = session.user;
+			data.id   = msg_id_seed++;
 			socket.broadcast.emit("post", data);
+
+			// Search for commands
+			if(~data.body.indexOf("[draw]")) {
+				// Create a canvas
+				var id = "c_" + (id_seed++);
+				io.sockets.emit("canvas_action", {
+					id: id,
+					action: "create",
+					message: data.id
+				});
+			}
 		}
 	});
 
 	socket.on("notify", function(data) {
 		socket.broadcast.emit("user_notify", session.user, data);
-	});
-
-	// HANDLE CANVAS
-	socket.on("request_canvas", function() {
-		var id = "c_" + (id_seed++);
-		io.sockets.emit("canvas_action", {
-			id: id,
-			action: "create"
-		});
 	});
 
 	socket.on("canvas_action", function(config) {

@@ -12,12 +12,11 @@ block content
 	script(type='text/template', id='template-canvas')
 		canvas(width="400", height="200")
 	script(type='text/template', id='template-panel')
-		.panel
-			.modal-header.handle
-				h3 <% header %>
-				button.close
-			.modal-body
-				<% body %>
+		.modal-header.handle
+			h3 <%= header %>
+			button.close
+		.modal-body
+	// TODO: implement panel for chat
 	.container#chat
 		.modal-header.handle
 			h3 Chat

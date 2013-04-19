@@ -19,7 +19,6 @@ App.AppView = Backbone.View.extend({
 
 		this.input = this.$el.find("input[name=body]");
 		// this.messages = [];
-		this.canvas = {};
 
 
 		App.collection = new App.MessageCollection();
@@ -52,20 +51,13 @@ App.AppView = Backbone.View.extend({
 	post: function(e) {
 		// Check input
 		if(this.input.val()) {
-			switch(this.input.val()) {
-				case "CANVAS":
-					this.socket.emit("request_canvas");
-					break;
-				default:
-					var data = {
-						name: this.name,
-						body: this.input.val()
-					};
-					this.socket.emit("post", data);
-					this.onMessage(data)
-					break;
-			}
-
+			var data = {
+				name: this.name,
+				body: this.input.val()
+			};
+			this.socket.emit("post", data);
+			this.onMessage(data);
+			
 			this.input.val("");
 		}
 		return false;
@@ -111,12 +103,14 @@ App.AppView = Backbone.View.extend({
 		}
 	},
 	handleCanvasAction: function(args) {
+		console.log(args);
 		var id = args[id];
 		if(args.action == "create") {
-			// console.log("create");
-			this.canvas[id] = new App.CanvasView({id: id}).render();
-			// console.log(this.canvas[id]);
-			this.list.append(this.canvas[id].el);
+			this.$el.append(new App.CanvasView({
+				id: id, 
+				model: App.collection.get(args.message)
+			}).render().el);
+
 			this.scrollDown();
 		}
 	},

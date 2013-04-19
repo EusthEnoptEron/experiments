@@ -5,6 +5,15 @@ body {
 	background: #444444;
 }
 
+body.drawing {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
 a {
   color: #00B7FF;
 }
@@ -117,7 +126,8 @@ form {
 }
 
 canvas {
-	border: 1px solid #e3e3e3;
+	background: #4D4D4D;
+	/*border: 1px solid #e3e3e3;*/
 	border-radius: 2px;
 }
 
@@ -139,6 +149,8 @@ canvas {
 
 	padding-bottom: 0;
 	padding-top: 0;
+
+	cursor: move;
 }
 
 
@@ -153,11 +165,18 @@ canvas {
 	border: 1px solid #4D4D4D;
 	border-bottom: none;
 	position: relative;
-	top: 1px;
+	top: 1.5px;
 }
 
 .panel {
 	width: 200px;
-	position: absolute;
+	position: absolute !important;
+	box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+.panel > .modal-body {
 	background: #10171B;
+	border: 1px solid #4D4D4D;
+	padding: 10px;
+	border-top: none;
+	border-radius: 0 0 1em 1em;
 }

@@ -4,13 +4,15 @@
 		Drawing: 1
 	};
 
-App.CanvasView = Backbone.View.extend({
-	tagName: "li",
+App.CanvasView = App.PanelView.extend({
 	template: "template-canvas",
 	events: {
-		"mousedown canvas" : "mouseDown",
-		"mousemove canvas": "mouseMove",
+		"mousedown canvas" : "start",
+		"mousemove canvas": "update",
+		"mouseout canvas": "mouseOut"
 	},
+	width: 400,
+	height: 200,
 	initialize: function(conf) {
 		this.id = conf.id;
 		this.id_seed = 0;
@@ -22,7 +24,7 @@ App.CanvasView = Backbone.View.extend({
 		};
 		this.paths = {};
 		this.currentPath = {};
-
+		this.header = "Canvas";
 		this.prevPos = null;
 		this.pos = null;
 
@@ -38,14 +40,14 @@ App.CanvasView = Backbone.View.extend({
 			this.trigger(args.action, args.params);
 		}
 	},
-	render: function() {
-		this.$el.empty()
-				.append(this.template());
+	renderBody: function() {
+		var el = $(this.template()).get(0);
 
-		this.canvas = this.$el.find("canvas").get(0);
+		if($(el).is("canvas")) this.canvas = el;
+		else this.canvas = $(el).find("canvas").get(0);
 		this.ctx = this.canvas.getContext("2d");
 
-		return this;
+		return el;
 	},
 	getPosition: function(e) {
 		var offset = $(this.canvas).offset();
@@ -53,8 +55,10 @@ App.CanvasView = Backbone.View.extend({
 				e.pageY - offset.top];
 	},
 	// Start path
-	mouseDown: function(e) {
+	start: function(e) {
 		this.status = Status.Drawing;
+		$("body").addClass("drawing");
+
 		var path = this.currentPath = {
 			pen: this.pen,
 			id: App.user + (this.id_seed++),
@@ -62,15 +66,29 @@ App.CanvasView = Backbone.View.extend({
 		};
 		this.emitAction("startPath", path);
 		
-		$(document).one("mouseup", this.mouseUp.bind(this));
+		$(document).one("mouseup.canvas", this.stop.bind(this));
 	},
 	startPath: function(path) {
 		this.paths[path.id] = path;
 	},
-	mouseUp: function(e) {
+	stop: function(e, silent) {
+		if(!silent)
+			$("body").removeClass("drawing");
+		
 		this.status = Status.Idle;
 	},
-	mouseMove: function(e) {
+	mouseOut: function(e) {
+		if(this.status = Status.Drawing) {
+			// console.log("STOP")
+			this.stop(e, true);
+			var that = this;
+			this.$el.one("mouseenter", function(e) {
+				$(document).off("mouseup.canvas");
+				that.start(e);
+			});
+		}
+	},
+	update: function(e) {
 		if(this.status == Status.Drawing) {
 			var point = this.getPosition(e);
 			var lastPoint = this.currentPath.points[
@@ -94,7 +112,6 @@ App.CanvasView = Backbone.View.extend({
 		this.trigger(action, params);
 	},
 	draw: function(params) {
-		console.log(params);
 		if(params.pathId in this.paths) {
 			this.paths[params.pathId].points.push(
 				params.point
