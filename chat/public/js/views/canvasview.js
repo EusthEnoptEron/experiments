@@ -78,7 +78,7 @@ App.CanvasView = App.PanelView.extend({
 		this.status = Status.Idle;
 	},
 	mouseOut: function(e) {
-		if(this.status = Status.Drawing) {
+		if(this.status == Status.Drawing) {
 			// console.log("STOP")
 			this.stop(e, true);
 			var that = this;
