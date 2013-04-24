@@ -79,17 +79,25 @@ ssio.on('connection', function (err, socket, session) {
 		if(session.user) {
 			data.name = session.user;
 			data.id   = msg_id_seed++;
+			var pid = data.p_id;
+			console.log(data);
+			delete data.p_id;
+
 			socket.broadcast.emit("post", data);
 
 			// Search for commands
 			if(~data.body.indexOf("[draw]")) {
 				// Create a canvas
 				var id = "c_" + (id_seed++);
-				io.sockets.emit("canvas_action", {
+				var obj = {
 					id: id,
 					action: "create",
 					message: data.id
-				});
+				};
+				socket.broadcast.emit("canvas_action", obj);
+				obj.message = pid;
+				socket.emit("canvas_action", obj);
+
 			}
 		}
 	});

@@ -8,12 +8,12 @@ App.AppView = Backbone.View.extend({
 	el: "#chat",
 	events: {
 		"submit #input": "post",
-		"submit #loginForm form": "login"
+		"submit #loginForm form": "login",
+		"scroll #chatroom" : "scroll"
 	},
 	socket: App.socket,
 	initialize: function(config) {
-		this.list = this.$el.find("#chatroom")
-					.on("scroll", this.scroll.bind(this));
+		this.list = this.$el.find("#chatroom");
 
 		this.freeScroll = false;
 
@@ -46,7 +46,8 @@ App.AppView = Backbone.View.extend({
 	},
 	onMessage: function(data) {
 		var model = new App.Message(data);
-		App.collection.add(model);
+		App.collection.add(model)
+		return model;
 	},
 	post: function(e) {
 		// Check input
@@ -55,8 +56,10 @@ App.AppView = Backbone.View.extend({
 				name: this.name,
 				body: this.input.val()
 			};
+			var msg = this.onMessage(data);
+			data.p_id = msg.id;
 			this.socket.emit("post", data);
-			this.onMessage(data);
+			
 			
 			this.input.val("");
 		}
@@ -108,7 +111,7 @@ App.AppView = Backbone.View.extend({
 		if(args.action == "create") {
 			this.$el.append(new App.CanvasView({
 				id: id, 
-				model: App.collection.get(args.message)
+				message: App.collection.get(args.message)
 			}).render().el);
 
 			this.scrollDown();
