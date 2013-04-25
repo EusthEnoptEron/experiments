@@ -1,3 +1,4 @@
 window.App = {
-	socket: io.connect(window.location)
+	socket: io.connect(window.location),
+	panels: []
 };

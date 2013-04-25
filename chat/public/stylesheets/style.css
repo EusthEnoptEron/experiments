@@ -135,6 +135,7 @@ canvas {
 	position: absolute;
 	border: 1px solid red;
 	border-radius: 3px;
+	z-index: -1;
 }
 
 .username {
@@ -174,9 +175,29 @@ canvas {
 	box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 .panel > .modal-body {
+	overflow-x: hidden;
 	background: #10171B;
 	border: 1px solid #4D4D4D;
 	padding: 10px;
 	border-top: none;
 	border-radius: 0 0 1em 1em;
+}
+
+.panel.mode-docked .handle {
+	background-color: rgb(255, 126, 6);
+	height: 20px;
+	border-top-right-radius: 0;
+
+}
+
+.panel.mode-docked .handle h3 {
+	display: none;
+}
+
+#chatroom .docked {
+	background-color: rgb(255, 126, 6);
+}
+
+#loginForm h3 {
+	color: black;
 }
