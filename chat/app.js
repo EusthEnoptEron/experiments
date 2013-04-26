@@ -45,10 +45,20 @@ var SessionSockets = require('session.socket.io')
 	, ssio = new SessionSockets(io, sessionStore, cookieParser);
 
 
+function extractCommands(data) {
+	var cmds = [];
+	// Search for commands
+	if(~data.body.indexOf("[draw]")) {
+		data.body = data.body.replace(/\[draw\]/g, "draw");
+		cmds.push("draw");
+	}
+	return cmds;
+}
 
 var users = {};
 var id_seed = 0;
 var msg_id_seed = 0;
+
 
 app.set("users", users);
 
@@ -80,26 +90,28 @@ ssio.on('connection', function (err, socket, session) {
 			data.name = session.user;
 			data.id   = msg_id_seed++;
 			var pid = data.p_id;
-			console.log(data);
-			delete data.p_id;
+			
+			var cmds = extractCommands(data);
 
+			delete data.p_id;
 			socket.broadcast.emit("post", data);
 
-			// Search for commands
-			if(~data.body.indexOf("[draw]")) {
-				data.body = data.body.replace(/\[draw\]g/, "draw");
-				// Create a canvas
-				var id = "c_" + (id_seed++);
-				var obj = {
-					id: id,
-					action: "create",
-					message: data.id
-				};
-				socket.broadcast.emit("canvas_action", obj);
-				obj.message = pid;
-				socket.emit("canvas_action", obj);
+			cmds.forEach(function(cmd) {
+				if(cmd == 'draw') {
+					// Create a canvas
+					var id = "c_" + (id_seed++);
+					var obj = {
+						id: id,
+						action: "create",
+						message: data.id
+					};
+					socket.broadcast.emit("canvas_action", obj);
+					obj.message = pid;
+					socket.emit("canvas_action", obj);
 
-			}
+				}
+			});
+
 		}
 	});
 

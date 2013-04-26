@@ -217,6 +217,11 @@ canvas {
 	box-shadow: inset 0 0 10px black;
 }
 
+.panel.mode-docked {
+	margin-left: -20px;
+}
+
+
 .panel .buttons {
 	margin: 0 10px;
 }
@@ -238,6 +243,30 @@ canvas {
 	background: rgb(210, 106, 0);
 }
 
+.panel.mode-docked:after {
+	display: block;
+	position: absolute;
+	top: 10px;
+	right: -20px;
+	width: 20px;
+	content: "";
+	border-top: 2px solid rgb(210, 106, 0);
+}
+.panel.hidden {
+	border: none;
+	box-shadow: none;
+}
+.panel.hidden .handle {
+	background: none;
+	margin: 0;
+	padding: 0;
+}
+
+
+.panel.hidden .handle .buttons {
+	float: right;
+	margin: 0;
+}
 
 #chatroom .docked {
 	background-color: rgb(255, 126, 6);

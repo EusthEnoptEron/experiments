@@ -15,6 +15,10 @@ block content
 		.modal-header.handle
 			h3 <%= header %>
 			span.buttons
+				<% if(hidden) { %>
+				span.btn.btn-inverse.btn-mini.btn-show
+					i.icon-fullscreen
+				<% } else { %>
 				<% if(mode != App.PanelMode.Embedded) { %>
 				span.btn.btn-mini.btn-inverse.btn-close
 					i.icon-remove
@@ -29,7 +33,10 @@ block content
 				span.btn.btn-mini.btn-inverse.btn-dock
 					i.icon-chevron-right
 				<% } %>
+				<% } %>
+		<% if(!hidden) { %>
 		.modal-body
+		<% } %>
 	// TODO: implement panel for chat
 	.container#chat
 		.modal-header.handle

@@ -16,7 +16,16 @@
 	};
 
 	var events = {
-		"click .buttons .btn-close" : "_panelClose",
+		"click .buttons .btn-close" : function() {
+			this.hidden = true;
+			this.mode = Mode.Docked;
+			// this.render();
+		},
+		"click .buttons .btn-show" : function() {
+			this.hidden = false;
+			this.mode = this.getLastMode();
+			// this.render();
+		},
 		"click .buttons .btn-dock" : function() {
 			this.mode = Mode.Docked;
 		},
@@ -90,12 +99,14 @@
 			this.$el.empty().append(
 				template({ 
 					header: this.header || "",
-					mode: this.mode
+					mode: this.mode,
+					hidden: this.hidden ? true : false
 				}));
 			
 			var mode  = _.keys(Mode)[this.mode].toLowerCase();
 			this.$el.attr("class", this.$el.attr("class").replace(/\bmode-\w+\b/g, ""));
 			this.$el.addClass("mode-" + mode);
+
 			if(this.mode == Mode.Panel) {
 				this.$el.draggable("enable");
 			} else {
@@ -103,11 +114,22 @@
 			}
 
 			this.$el.find(".modal-body").append(this.renderBody());
-			if(this.width) {
-				this.$el.css("width", (this.width + 31) + "px");
-			}
-			if(this.height) {
-				this.$el.css("height", (this.height + 31) + "px");
+
+
+
+			if(this.hidden) {
+				this.$el.addClass("hidden")
+						.css("width", "auto")
+						.css("height", "auto");
+			} else {
+				this.$el.removeClass("hidden");
+				if(this.width) {
+					this.$el.css("width", (this.width + 31) + "px");
+				}
+				if(this.height) {
+					this.$el.css("height", (this.height + 31) + "px");
+				}
+
 			}
 
 			this.updatePosition();
@@ -123,8 +145,8 @@
 	});
 		
 	App.PanelView.prototype.__defineSetter__("mode", function(val) {
-		if(val != this._mode && val !== undefined) {
-			this._modeHistory.push(this._mode);
+		this._modeHistory.push(this._mode);
+		if(val !== undefined) {
 			this._mode = val;
 			if(this.message) {
 				if(val == Mode.Docked) {
