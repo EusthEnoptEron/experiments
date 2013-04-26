@@ -87,6 +87,7 @@ ssio.on('connection', function (err, socket, session) {
 
 			// Search for commands
 			if(~data.body.indexOf("[draw]")) {
+				data.body = data.body.replace(/\[draw\]g/, "draw");
 				// Create a canvas
 				var id = "c_" + (id_seed++);
 				var obj = {

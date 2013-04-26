@@ -14,7 +14,21 @@ block content
 	script(type='text/template', id='template-panel')
 		.modal-header.handle
 			h3 <%= header %>
-			button.close
+			span.buttons
+				<% if(mode != App.PanelMode.Embedded) { %>
+				span.btn.btn-mini.btn-inverse.btn-close
+					i.icon-remove
+				<% } %>
+				span.btn.btn-mini.btn-inverse.btn-lock
+					i.icon-lock
+				<% if(mode == App.PanelMode.Docked) { %>
+				span.btn.btn-mini.btn-inverse.btn-undock
+					i.icon-chevron-left
+				<% } %>
+				<% if(mode == App.PanelMode.Panel) { %>
+				span.btn.btn-mini.btn-inverse.btn-dock
+					i.icon-chevron-right
+				<% } %>
 		.modal-body
 	// TODO: implement panel for chat
 	.container#chat

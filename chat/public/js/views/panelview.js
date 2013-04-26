@@ -15,9 +15,27 @@
 		mode: Mode.Docked
 	};
 
+	var events = {
+		"click .buttons .btn-close" : "_panelClose",
+		"click .buttons .btn-dock" : function() {
+			this.mode = Mode.Docked;
+		},
+		"click .buttons .btn-undock" : function() {
+			this.mode = Mode.Panel;
+		},
+		"click .buttons .btn-lock" : function() {
+			this.mode = this.mode == Mode.Embedded
+				? this.getLastMode()
+				: Mode.Embedded;
+		},
+
+	};
 
 	App.PanelView = Backbone.View.extend({
 		className: "panel",
+		getLastMode: function() {
+			return this._modeHistory.pop() || Mode.Panel;
+		},
 		updatePosition : function() {
 			if(this.mode == Mode.Docked && this.message) {
 				var offset =$("#" + this.message.getId()).offset();
@@ -42,6 +60,7 @@
 			}
 		},
 		_configure: function(options) {
+			this._modeHistory = [];
 
 			Backbone.View.prototype._configure.apply(this, arguments);
 
@@ -59,6 +78,7 @@
 			}
 		},
 		delegateEvents: function() {
+			this.events = _.defaults(this.events || {}, events);
 			Backbone.View.prototype.delegateEvents.apply(this, arguments);
 			this.$el.draggable({
 				handle: ".handle",
@@ -103,17 +123,20 @@
 	});
 		
 	App.PanelView.prototype.__defineSetter__("mode", function(val) {
-		this._mode = val;
-		if(this.message) {
-			if(val == Mode.Docked) {
-				this.message.set("hasDockedPanel", true);
-			} else {
-				this.message.set("hasDockedPanel", false);
+		if(val != this._mode && val !== undefined) {
+			this._modeHistory.push(this._mode);
+			this._mode = val;
+			if(this.message) {
+				if(val == Mode.Docked) {
+					this.message.set("hasDockedPanel", true);
+				} else {
+					this.message.set("hasDockedPanel", false);
+				}
 			}
+			
+			if(this.$el)
+				this.render();
 		}
-		
-		if(this.$el)
-			this.render();
 	});
 	
 })();

@@ -53,7 +53,7 @@ a {
 	background: #232427;
 	border: 1px solid #4D4D4D;
 	box-shadow: inset 1px 1px 3px rgb(20,20,20);
-	border-radius: 5px;
+	border-radius: 5px 0 0 5px;
 	margin-left: 81%;
 	list-style-type: none;
 }
@@ -174,6 +174,8 @@ canvas {
 	position: absolute !important;
 	box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
+
+
 .panel > .modal-body {
 	overflow-x: hidden;
 	background: #10171B;
@@ -181,22 +183,66 @@ canvas {
 	padding: 10px;
 	border-top: none;
 	border-radius: 0 0 1em 1em;
+	clear: both;
 }
 
 .panel.mode-docked .handle {
 	background-color: rgb(255, 126, 6);
-	height: 20px;
+	height: 22px;
 	border-top-right-radius: 0;
 
 }
 
-.panel.mode-docked .handle h3 {
+.panel.mode-docked .handle h3,
+.panel.mode-embedded .handle h3 {
 	display: none;
 }
+
+.panel.mode-docked .handle,
+.panel.mode-embedded .handle {
+	cursor: default;	
+}
+
+.panel.mode-embedded .handle {
+	background: none;
+}
+
+.panel.mode-embedded  {
+	box-shadow: none;
+}
+.panel.mode-embedded .modal-body {
+	background: none;
+	border: none;
+	border-right: 1px solid #666;
+	box-shadow: inset 0 0 10px black;
+}
+
+.panel .buttons {
+	margin: 0 10px;
+}
+
+.panel .buttons .btn-close {
+	float: right;
+	margin: 0 5px;
+}
+
+.panel.mode-docked .buttons .btn-close {
+	float: left;
+}
+
+.panel.mode-docked .buttons .btn {
+	background: rgb(190, 86, 0);
+}
+
+.panel.mode-docked .buttons .btn:hover {
+	background: rgb(210, 106, 0);
+}
+
 
 #chatroom .docked {
 	background-color: rgb(255, 126, 6);
 }
+
 
 #loginForm h3 {
 	color: black;

@@ -41,13 +41,14 @@ App.CanvasView = App.PanelView.extend({
 		}
 	},
 	renderBody: function() {
-		var el = $(this.template()).get(0);
+		if(!this.body) {
+			this.body = el = $(this.template()).get(0);
 
-		if($(el).is("canvas")) this.canvas = el;
-		else this.canvas = $(el).find("canvas").get(0);
-		this.ctx = this.canvas.getContext("2d");
-
-		return el;
+			if($(el).is("canvas")) this.canvas = el;
+			else this.canvas = $(el).find("canvas").get(0);
+			this.ctx = this.canvas.getContext("2d");
+		}
+		return this.body;
 	},
 	getPosition: function(e) {
 		var offset = $(this.canvas).offset();
