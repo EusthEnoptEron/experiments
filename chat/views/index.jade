@@ -15,7 +15,7 @@ block content
 		.modal-header.handle
 			h3 <%= header %>
 			span.buttons
-				<% if(hidden) { %>
+				<% if(mode == App.PanelMode.Hidden) { %>
 				span.btn.btn-inverse.btn-mini.btn-show
 					i.icon-fullscreen
 				<% } else { %>
@@ -34,7 +34,7 @@ block content
 					i.icon-chevron-right
 				<% } %>
 				<% } %>
-		<% if(!hidden) { %>
+		<% if(mode != App.PanelMode.Hidden) { %>
 		.modal-body
 		<% } %>
 	// TODO: implement panel for chat
@@ -52,3 +52,11 @@ block content
 					input(type="text", name="username")
 					&nbsp;
 					button.btn.btn-primary(type="submit") Let me in!
+		#pastebinForm.modal.hide.fade(role="dialog")
+			.modal-header
+				h3 Pastebin
+			.modal-body
+				form.form-search
+					textarea(name="code")
+					input(name="language")
+					button.btn.btn-primary(type="submit") Send

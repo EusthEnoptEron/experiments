@@ -173,6 +173,7 @@ canvas {
 	width: 200px;
 	position: absolute !important;
 	box-shadow: 0 0 10px rgba(0,0,0,0.3);
+	min-height: 130px;
 }
 
 
@@ -190,15 +191,16 @@ canvas {
 	background-color: rgb(255, 126, 6);
 	height: 22px;
 	border-top-right-radius: 0;
-
 }
 
 .panel.mode-docked .handle h3,
+.panel.mode-hidden .handle h3,
 .panel.mode-embedded .handle h3 {
 	display: none;
 }
 
 .panel.mode-docked .handle,
+.panel.mode-hidden .handle,
 .panel.mode-embedded .handle {
 	cursor: default;	
 }
@@ -217,10 +219,11 @@ canvas {
 	box-shadow: inset 0 0 10px black;
 }
 
-.panel.mode-docked {
+.panel.mode-docked, 
+.panel.mode-hidden
+ {
 	margin-left: -20px;
 }
-
 
 .panel .buttons {
 	margin: 0 10px;
@@ -235,15 +238,18 @@ canvas {
 	float: left;
 }
 
-.panel.mode-docked .buttons .btn {
+.panel.mode-docked .buttons .btn,
+.panel.mode-hidden .buttons .btn {
 	background: rgb(190, 86, 0);
 }
 
-.panel.mode-docked .buttons .btn:hover {
+.panel.mode-docked .buttons .btn:hover,
+.panel.mode-hidden .buttons .btn:hover {
 	background: rgb(210, 106, 0);
 }
 
-.panel.mode-docked:after {
+.panel.mode-docked:after,
+.panel.mode-hidden:after {
 	display: block;
 	position: absolute;
 	top: 10px;
@@ -252,18 +258,18 @@ canvas {
 	content: "";
 	border-top: 2px solid rgb(210, 106, 0);
 }
-.panel.hidden {
+.panel.mode-hidden {
 	border: none;
 	box-shadow: none;
 }
-.panel.hidden .handle {
+.panel.mode-hidden .handle {
 	background: none;
 	margin: 0;
 	padding: 0;
 }
 
 
-.panel.hidden .handle .buttons {
+.panel.mode-hidden .handle .buttons {
 	float: right;
 	margin: 0;
 }
@@ -271,7 +277,6 @@ canvas {
 #chatroom .docked {
 	background-color: rgb(255, 126, 6);
 }
-
 
 #loginForm h3 {
 	color: black;

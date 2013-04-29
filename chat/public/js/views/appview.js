@@ -28,6 +28,8 @@ App.AppView = Backbone.View.extend({
 		this.socket.on("login", this.handleLogin.bind(this));
 		this.socket.on("handshake", this.handleHandshake.bind(this));
 		this.socket.on("canvas_action", this.handleCanvasAction.bind(this));
+		this.socket.on("request_code", this.requestCode.bind(this));
+		this.socket.on("pastebin:create", this.createPastebin.bind(this));
 
 		this.setStatus(Status.Preparing);
 
@@ -35,6 +37,19 @@ App.AppView = Backbone.View.extend({
 	},
 	render: function() {
 		this.userlist = new App.UserlistView().render();
+	},
+	requestCode: function(token) {
+		$('#pastebinForm')
+			.modal("show")
+			.on("submit", "form", function() {
+				var values = $(this).serializeObject();
+				App.socket.emit("post_code", token, values);
+				$('#pastebinForm').modal("hide");
+				return false;
+			})
+			.on("hidden", function() {
+				$(this).off("submit","form");
+			});
 	},
 	addMessage: function(model) {
 		var view = new App.MessageView({
@@ -59,7 +74,6 @@ App.AppView = Backbone.View.extend({
 			var msg = this.onMessage(data);
 			data.p_id = msg.id;
 			this.socket.emit("post", data);
-			
 			
 			this.input.val("");
 		}
@@ -123,6 +137,17 @@ App.AppView = Backbone.View.extend({
 
 			this.scrollDown();
 		}
+	},
+	createPastebin: function(values) {
+		var model = new App.Pastebin(values);
+		var view = new App.PastebinView({
+			model: model,
+			message: App.collection.get(values.message)
+		});
+		App.panels.push(view);
+		this.$el.append(view.render().el);
+
+		this.scrollDown();
 	},
 	setStatus: function(status) {
 		if(status != this.status) {

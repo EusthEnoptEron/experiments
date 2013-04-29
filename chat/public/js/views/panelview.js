@@ -5,24 +5,25 @@
 	var Mode = App.PanelMode = {
 		Panel: 0,
 		Embedded: 1,
-		Docked: 2
+		Docked: 2,
+		Hidden: 3
 	};
 
 	var defaults = {
 		header: "",
 		body: "",
 		message: null,
-		mode: Mode.Docked
+		mode: Mode.Hidden
 	};
+
+	var defaultMode = Mode.Docked;
 
 	var events = {
 		"click .buttons .btn-close" : function() {
-			this.hidden = true;
-			this.mode = Mode.Docked;
+			this.mode = Mode.Hidden;
 			// this.render();
 		},
 		"click .buttons .btn-show" : function() {
-			this.hidden = false;
 			this.mode = this.getLastMode();
 			// this.render();
 		},
@@ -43,10 +44,11 @@
 	App.PanelView = Backbone.View.extend({
 		className: "panel",
 		getLastMode: function() {
-			return this._modeHistory.pop() || Mode.Panel;
+			return this._modeHistory.pop() || defaultMode;
 		},
 		updatePosition : function() {
-			if(this.mode == Mode.Docked && this.message) {
+			if( (this.mode == Mode.Docked || this.mode == Mode.Hidden)
+				 && this.message) {
 				var offset =$("#" + this.message.getId()).offset();
 				var chatOffset = $("#chatroom").offset();
 				var chatHeight = $("#chatroom").height();
@@ -99,8 +101,7 @@
 			this.$el.empty().append(
 				template({ 
 					header: this.header || "",
-					mode: this.mode,
-					hidden: this.hidden ? true : false
+					mode: this.mode
 				}));
 			
 			var mode  = _.keys(Mode)[this.mode].toLowerCase();
@@ -116,13 +117,10 @@
 			this.$el.find(".modal-body").append(this.renderBody());
 
 
-
-			if(this.hidden) {
-				this.$el.addClass("hidden")
-						.css("width", "auto")
+			if(this.mode == Mode.Hidden) {
+				this.$el.css("width", "auto")
 						.css("height", "auto");
 			} else {
-				this.$el.removeClass("hidden");
 				if(this.width) {
 					this.$el.css("width", (this.width + 31) + "px");
 				}
@@ -141,15 +139,18 @@
 
 
 	App.PanelView.prototype.__defineGetter__("mode", function() {
-		return this._mode || Mode.Panel;
+		return this._mode === undefined
+					? defaultMode
+					: this._mode;
 	});
 		
 	App.PanelView.prototype.__defineSetter__("mode", function(val) {
-		this._modeHistory.push(this._mode);
 		if(val !== undefined) {
+			this._modeHistory.push(this._mode);
 			this._mode = val;
+
 			if(this.message) {
-				if(val == Mode.Docked) {
+				if(val == Mode.Docked || val == Mode.Hidden) {
 					this.message.set("hasDockedPanel", true);
 				} else {
 					this.message.set("hasDockedPanel", false);

@@ -52,12 +52,17 @@ function extractCommands(data) {
 		data.body = data.body.replace(/\[draw\]/g, "draw");
 		cmds.push("draw");
 	}
+	if(~data.body.indexOf("[code]")) {
+		data.body = data.body.replace(/\[code\]/g, "code");
+		cmds.push("code");
+	}
 	return cmds;
 }
 
 var users = {};
 var id_seed = 0;
 var msg_id_seed = 0;
+var msgCache = {};
 
 
 app.set("users", users);
@@ -91,13 +96,10 @@ ssio.on('connection', function (err, socket, session) {
 			data.id   = msg_id_seed++;
 			var pid = data.p_id;
 			
-			var cmds = extractCommands(data);
+			var cmd = extractCommands(data).shift();
 
-			delete data.p_id;
-			socket.broadcast.emit("post", data);
-
-			cmds.forEach(function(cmd) {
-				if(cmd == 'draw') {
+			switch(cmd) {
+				case "draw":
 					// Create a canvas
 					var id = "c_" + (id_seed++);
 					var obj = {
@@ -105,13 +107,31 @@ ssio.on('connection', function (err, socket, session) {
 						action: "create",
 						message: data.id
 					};
+
+					socket.broadcast.emit("post", data);
 					socket.broadcast.emit("canvas_action", obj);
 					obj.message = pid;
 					socket.emit("canvas_action", obj);
-
-				}
-			});
-
+					break;
+				case "code":
+					msgCache[data.id] = data;
+					socket.emit("request_code", data.id);
+					break;
+				default:
+					socket.broadcast.emit("post", data);
+					break;
+			}
+		}
+	});
+	socket.on("post_code", function(token, values) {
+		var post = msgCache[token];
+		if(post) {
+			socket.broadcast.emit("post", post);
+			values.id = "c_" + (id_seed++);
+			values.message = post.id;
+			socket.broadcast.emit("pastebin:create", values);
+			values.message = post.p_id;
+			socket.emit("pastebin:create", values);
 		}
 	});
 
@@ -121,6 +141,10 @@ ssio.on('connection', function (err, socket, session) {
 
 	socket.on("canvas_action", function(config) {
 		socket.broadcast.emit("canvas_action", config);
+	});
+
+	socket.on("pastebin:update", function(id, deltas) {
+		socket.broadcast.emit("pastebin." + id + ":update", deltas);
 	});
 
 
