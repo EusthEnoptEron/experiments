@@ -123,6 +123,7 @@ ssio.on('connection', function (err, socket, session) {
 			}
 		}
 	});
+
 	socket.on("post_code", function(token, values) {
 		var post = msgCache[token];
 		if(post) {
@@ -140,7 +141,7 @@ ssio.on('connection', function (err, socket, session) {
 	});
 
 	socket.on("canvas_action", function(config) {
-		socket.broadcast.emit("canvas_action", config);
+		socket.broadcast.emit("canvas_action." + config.id, config);
 	});
 
 	socket.on("pastebin:update", function(id, deltas) {

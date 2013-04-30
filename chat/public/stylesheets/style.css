@@ -1,6 +1,5 @@
 @import url(http://fonts.googleapis.com/css?family=Titillium+Web);
 
-
 body {
 	padding: 50px;
 	/*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
@@ -186,7 +185,7 @@ canvas {
 
 
 .panel > .modal-body {
-	overflow-x: hidden;
+	overflow: hidden;
 	background: #10171B;
 	border: 1px solid #4D4D4D;
 	padding: 10px;
@@ -289,3 +288,35 @@ canvas {
 #loginForm h3 {
 	color: black;
 }
+
+
+.ui-resizable-handle {
+	position: absolute;
+	font-size: 0.1px;
+	display: block;
+}
+
+.ui-resizable-e {
+	cursor: e-resize;
+	width: 7px;
+	right: -5px;
+	top: 0;
+	height: 100%;
+}
+
+.ui-resizable-s {
+	cursor: s-resize;
+	height: 7px;
+	width: 100%;
+	bottom: -5px;
+	left: 0;
+}
+
+.ui-resizable-se {
+	cursor: se-resize;
+	width: 12px;
+	height: 12px;
+	right: 1px;
+	bottom: 1px;
+}
+

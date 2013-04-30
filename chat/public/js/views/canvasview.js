@@ -9,7 +9,8 @@ App.CanvasView = App.PanelView.extend({
 	events: {
 		"mousedown canvas" : "start",
 		"mousemove canvas": "update",
-		"mouseout canvas": "mouseOut"
+		"mouseout canvas": "mouseOut",
+		"resize": "resize"
 	},
 	width: 400,
 	height: 200,
@@ -31,7 +32,7 @@ App.CanvasView = App.PanelView.extend({
 		this.template = _.template( $('#' + this.template).html() );
 
 
-		this.listenTo(App.socket, "canvas_action", this.handleAction.bind(this));
+		this.listenTo(App.socket, "canvas_action." + this.id, this.handleAction.bind(this));
 		this.listenTo(this, "draw", this.draw);
 		this.listenTo(this, "startPath", this.startPath);
 	},
@@ -136,6 +137,11 @@ App.CanvasView = App.PanelView.extend({
 
 			ctx.stroke();
 		});
+	},
+	resize: function() {
+		this.canvas.height = this.$(".modal-body").height();
+		this.redraw();
+		// this.canvas.w = this.$("modal-body").w();
 	}
 });
 

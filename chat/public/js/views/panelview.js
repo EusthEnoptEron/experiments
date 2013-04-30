@@ -109,9 +109,14 @@
 			this.$el.addClass("mode-" + mode);
 
 			if(this.mode == Mode.Panel) {
-				this.$el.draggable("enable");
+				this.$el.draggable("enable")
+					.children(".modal-body")
+						.resizable({
+					    	handles: "s"
+					    });
 			} else {
 				this.$el.draggable("disable");
+						// .resizable("disable");
 			}
 
 			this.$el.find(".modal-body").append(this.renderBody());
@@ -121,13 +126,12 @@
 				this.$el.css("width", "auto")
 						.css("height", "auto");
 			} else {
-				if(this.width) {
-					this.$el.css("width", (this.width + 31) + "px");
-				}
-				if(this.height) {
-					this.$el.css("height", (this.height + 31) + "px");
-				}
-
+				// if(this.width) {
+				// 	this.$el.css("width", (this.width + 31) + "px");
+				// }
+				// if(this.height) {
+				// 	this.$el.css("height", (this.height + 31) + "px");
+				// }
 			}
 
 			this.updatePosition();
