@@ -3,10 +3,10 @@
 
 
 	var Mode = App.PanelMode = {
-		Panel: 0,
-		Embedded: 1,
-		Docked: 2,
-		Hidden: 3
+		Panel: 1,
+		Embedded: 2,
+		Docked: 3,
+		Hidden: 4
 	};
 
 	var defaults = {
@@ -104,7 +104,7 @@
 					mode: this.mode
 				}));
 			
-			var mode  = _.keys(Mode)[this.mode].toLowerCase();
+			var mode  = _.keys(Mode)[this.mode - 1].toLowerCase();
 			this.$el.attr("class", this.$el.attr("class").replace(/\bmode-\w+\b/g, ""));
 			this.$el.addClass("mode-" + mode);
 
