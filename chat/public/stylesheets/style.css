@@ -1,6 +1,10 @@
+@import url(http://fonts.googleapis.com/css?family=Titillium+Web);
+
+
 body {
 	padding: 50px;
-	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	/*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
+	font-family: 'Titillium Web', sans-serif;
 	color: white;
 	background: #444444;
 }
@@ -75,6 +79,10 @@ a {
 	background: black;
 	color: white;
 	border-color: #4D4D4D;
+}
+
+input {
+	font-family: 'Titillium Web', sans-serif;
 }
 
 #chatroom {
