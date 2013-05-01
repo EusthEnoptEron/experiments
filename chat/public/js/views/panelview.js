@@ -47,27 +47,46 @@
 			return this._modeHistory.pop() || defaultMode;
 		},
 		updatePosition : function() {
+			//TODO: improve performance
 			if( (this.mode == Mode.Docked || this.mode == Mode.Hidden)
 				 && this.message) {
+				// Fetch values needed
 				var offset =$("#" + this.message.getId()).offset();
+				var width = this.$el.width();
 				var chatOffset = $("#chatroom").offset();
 				var chatHeight = $("#chatroom").height();
 
+				var x = (offset.left - width),
+						y = offset.top;
+
+				if(x < 0) {
+					width += x;
+					x = 0;
+
+					this.$el.css("width", width + "px");
+				} else {
+					this.$el.css("width", "auto");
+				}
+
+				// Compute opacity
 				var pxOff = 0;
-				var max = 100;
+				var pixelsUntilOblivion = 100;
 				if(offset.top < chatOffset.top) {
 					pxOff = chatOffset.top - offset.top;
 				} else if(offset.top > chatOffset.top + chatHeight ) {
 					pxOff = offset.top - (chatOffset.top + chatHeight);
-					max = 30;
+					pixelsUntilOblivion = 30;
 				}
-				pxOff = Math.min(max, pxOff);
-				var opacity = 1 - pxOff / max;
+				pxOff = Math.min(pixelsUntilOblivion, pxOff);
+				var opacity = 1 - pxOff / pixelsUntilOblivion;
+
+
 				this.$el.css({
-					"top": offset.top + "px",
-					"left": (offset.left - this.$el.width()) + "px",
+					"left": x + "px",
+					"top": y + "px",
 					"opacity": opacity
 				});
+
 			}
 		},
 		_configure: function(options) {
@@ -81,7 +100,7 @@
 					val = options[key];
 				}
 				this[key] = val;
-				
+
 			}, this);
 
 			if(this.message) {
@@ -105,11 +124,11 @@
 
 			template = template || _.template($("#template-panel").html());
 			this.$el.empty().append(
-				template({ 
+				template({
 					header: this.header || "",
 					mode: this.mode
 				}));
-			
+
 			var mode  = _.keys(Mode)[this.mode - 1].toLowerCase();
 			this.$el.attr("class", this.$el.attr("class").replace(/\bmode-\w+\b/g, ""));
 			this.$el.addClass("mode-" + mode);
@@ -158,7 +177,7 @@
 					? defaultMode
 					: this._mode;
 	});
-		
+
 	App.PanelView.prototype.__defineSetter__("mode", function(val) {
 		if(val !== undefined) {
 			this._modeHistory.push(this._mode);
@@ -171,10 +190,10 @@
 					this.message.set("hasDockedPanel", false);
 				}
 			}
-			
+
 			if(this.$el)
 				this.render();
 		}
 	});
-	
+
 })();
