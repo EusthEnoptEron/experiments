@@ -320,3 +320,17 @@ canvas {
 	bottom: 1px;
 }
 
+
+#pastebinForm h3 {
+	color: black;
+}
+
+#pastebinForm textarea {
+	display: block;
+	font-family: monospace;
+	width: 97%;
+}
+
+#pastebinForm [type=submit] {
+	float: right;
+}

@@ -50,6 +50,7 @@ App.AppView = Backbone.View.extend({
 				return false;
 			})
 			.on("hidden", function() {
+				$(this).find("form")[0].reset();
 				$(this).off("submit","form");
 			});
 	},

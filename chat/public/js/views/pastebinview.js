@@ -1,6 +1,8 @@
 (function() {
 	App.PastebinView = App.PanelView.extend({
-		
+		events: {
+			"resize .modal-body": "resize"
+		},
 		initialize: function() {
 			if(!this.id)
 				this.id = this.model.id;
@@ -36,6 +38,10 @@
 
 			}
 			return this.body;
+		},
+		resize: function() {
+			$(this.renderBody()).css("height", this.$(".modal-body").height());
+			this.editor.resize();
 		}
 	});
 })();
