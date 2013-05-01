@@ -5,11 +5,15 @@ var Status = {
 	Ready: 2
 };
 
+var KEY_UP = 38,
+	KEY_DOWN = 40;
+
 App.AppView = Backbone.View.extend({
 	el: "#chat",
 	events: {
 		"submit #input": "post",
-		"submit #loginForm form": "login"
+		"submit #loginForm form": "login",
+		"keydown #input": "checkHistory"
 	},
 	socket: App.socket,
 	initialize: function(config) {
@@ -19,6 +23,7 @@ App.AppView = Backbone.View.extend({
 		$(window).on("resize", this.updatePanels);
 
 		this.freeScroll = false;
+		this.historyPosition = 0;
 
 		this.input = this.$el.find("input[name=body]");
 		// this.messages = [];
@@ -80,6 +85,7 @@ App.AppView = Backbone.View.extend({
 			this.socket.emit("post", data);
 
 			this.input.val("");
+			this.historyPosition = 0;
 		}
 		return false;
 	},
@@ -167,6 +173,30 @@ App.AppView = Backbone.View.extend({
 				$('#loginForm').modal("hide");
 				this.input.focus();
 			}
+		}
+	},
+	followHistory: function(steps) {
+		var history = App.collection.where({
+			name: App.user
+		});
+		this.historyPosition += steps;
+
+		this.historyPosition = Math.max(0, 
+			Math.min(history.length, this.historyPosition));
+
+		var msg = "";
+		if(this.historyPosition > 0) {
+			msg = history[history.length - this.historyPosition].get("body");
+		}
+		$(this.input).val(msg);
+	},
+	checkHistory: function(e) {
+		if(e.which == KEY_UP) {
+			this.followHistory(1);
+			return false;
+		} else if(e.which == KEY_DOWN) {
+			this.followHistory(-1);
+			return false;
 		}
 	}
 });
