@@ -209,7 +209,7 @@ canvas {
 .panel.mode-docked .handle,
 .panel.mode-hidden .handle,
 .panel.mode-embedded .handle {
-	cursor: default;	
+	cursor: default;
 }
 
 .panel.mode-embedded .handle {
@@ -226,7 +226,7 @@ canvas {
 	box-shadow: inset 0 0 10px black;
 }
 
-.panel.mode-docked, 
+.panel.mode-docked,
 .panel.mode-hidden
  {
 	margin-left: -20px;
