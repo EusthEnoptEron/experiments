@@ -1,4 +1,6 @@
-(function() {
+(function() {$
+	var TIMEOUT = 2000;
+
 	App.PastebinView = App.PanelView.extend({
 		events: {
 			"resize .modal-body": "resize"
@@ -10,24 +12,37 @@
 			var id = this.model.id;
 			var that = this;
 			var body = this.renderBody();
+
+			this.timeout = null;
 			this.header = "Pastebin";
 
 			var editor = this.editor = ace.edit(body);
-		    editor.setTheme("ace/theme/monokai");
-		    editor.getSession().setMode("ace/mode/" + this.model.get("language"));
-		
+		  editor.setTheme("ace/theme/monokai");
+		  editor.getSession().setMode("ace/mode/" + this.model.get("language"));
+
 			editor.getSession().on("change", function(e) {
 				if(!that.updating)
 					App.socket.emit("pastebin:update", id, [e.data]);
 			});
 
 			this.editor.setValue(this.model.get("code"));
-		    App.socket.on("pastebin." + this.model.id + ":update", this.updateCode.bind(this));
+			App.socket.on("pastebin." + this.model.id + ":update", this.updateCode.bind(this));
 		},
+		// Handle pastebin input from the other side.
 		updateCode: function(deltas) {
 			this.updating = true;
 			this.editor.getSession().getDocument().applyDeltas(deltas);
 			this.updating = false;
+
+			// Enable read only for a while
+			editor.setReadonly(true);
+
+			clearTimeout(this.timeout);
+			var editor = this.editor;
+			this.timeout = setTimeout(function() {
+				// Make editable again
+				editor.setReadonly(false);
+			}, TIMEOUT);
 		},
 		renderBody: function() {
 			if(!this.body) {
