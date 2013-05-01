@@ -12,7 +12,7 @@ App.CanvasView = App.PanelView.extend({
 		"mouseout canvas": "mouseOut",
 		"resize": "resize"
 	},
-	width: 400,
+	width: 300,
 	height: 200,
 	initialize: function(conf) {
 		this.id = conf.id;
@@ -47,6 +47,8 @@ App.CanvasView = App.PanelView.extend({
 
 			if($(el).is("canvas")) this.canvas = el;
 			else this.canvas = $(el).find("canvas").get(0);
+			this.canvas.width = this.width;
+			this.canvas.height = this.height;
 			this.ctx = this.canvas.getContext("2d");
 		}
 		return this.body;
