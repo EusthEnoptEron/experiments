@@ -97,6 +97,12 @@
 			});
 		},
 		render: function() {
+			var body = $(".modal-body");
+			var height = null;
+			if(body.length) {
+				height = parseInt(body.css("height"));
+			}
+
 			template = template || _.template($("#template-panel").html());
 			this.$el.empty().append(
 				template({ 
@@ -109,23 +115,28 @@
 			this.$el.addClass("mode-" + mode);
 
 			if(this.mode == Mode.Panel) {
-				this.$el.draggable("enable")
-					.children(".modal-body")
-						.resizable({
-					    	handles: "s"
-					    });
+				this.$el.draggable("enable");
 			} else {
 				this.$el.draggable("disable");
 						// .resizable("disable");
 			}
 
-			this.$el.find(".modal-body").append(this.renderBody());
+			if(this.mode == Mode.Panel || this.mode == Mode.Docked) {
+				this.$(".modal-body").resizable({
+			    	handles: "s"
+			    });
+			}
+
+			this.$(".modal-body").append(this.renderBody());
 
 
 			if(this.mode == Mode.Hidden) {
 				this.$el.css("width", "auto")
 						.css("height", "auto");
 			} else {
+				if(height) {
+					this.$(".modal-body").css("height", height + "px");
+				}
 				// if(this.width) {
 				// 	this.$el.css("width", (this.width + 31) + "px");
 				// }

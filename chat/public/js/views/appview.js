@@ -13,7 +13,9 @@ App.AppView = Backbone.View.extend({
 	socket: App.socket,
 	initialize: function(config) {
 		this.list = this.$el.find("#chatroom")
-					.on("scroll", this.scroll.bind(this));
+					.on("scroll", this.scroll.bind(this))
+					.on("scroll", this.updatePanels);
+		$(window).on("resize", this.updatePanels);
 
 		this.freeScroll = false;
 
@@ -79,6 +81,11 @@ App.AppView = Backbone.View.extend({
 		}
 		return false;
 	},
+	updatePanels: function() {
+		_.forEach(App.panels, function(panel) {
+			panel.updatePosition();
+		});
+	},
 	scroll: function(e) {
 		var scrollableHeight = this.list.prop("scrollHeight")
 							  -this.list.innerHeight();
@@ -88,9 +95,6 @@ App.AppView = Backbone.View.extend({
 		} else {
 			this.freeScroll = false;
 		}
-		_.forEach(App.panels, function(panel) {
-			panel.updatePosition();
-		});
 	},
 	scrollDown: function() {
 		if(!this.freeScroll) {
