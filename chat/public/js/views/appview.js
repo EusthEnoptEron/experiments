@@ -75,7 +75,7 @@ App.AppView = Backbone.View.extend({
 	},
 	post: function(e) {
 		// Check input
-		if(this.input.val()) {
+		if(this.input.val() && App.user) {
 			var data = {
 				name: this.name,
 				body: this.input.val()
