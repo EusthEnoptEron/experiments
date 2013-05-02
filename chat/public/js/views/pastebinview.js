@@ -33,15 +33,14 @@
 			this.updating = true;
 			this.editor.getSession().getDocument().applyDeltas(deltas);
 			this.updating = false;
-
 			// Enable read only for a while
-			editor.setReadonly(true);
+			this.editor.setReadOnly(true);
 
 			clearTimeout(this.timeout);
 			var editor = this.editor;
 			this.timeout = setTimeout(function() {
 				// Make editable again
-				editor.setReadonly(false);
+				editor.setReadOnly(false);
 			}, TIMEOUT);
 		},
 		renderBody: function() {
