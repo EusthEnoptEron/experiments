@@ -10,10 +10,15 @@ App.CanvasView = App.PanelView.extend({
 		"mousedown canvas" : "start",
 		"mousemove canvas": "update",
 		"mouseout canvas": "mouseOut",
-		"resize": "resize"
+		"resize": "resize",
+		"change input": "changeProperties"
 	},
 	width: 300,
 	height: 200,
+	changeProperties: function(e, d) {
+		this.pen.width = this.$(".pen_width").val();
+		this.pen.color = this.$(".pen_color").val();
+	},
 	initialize: function(conf) {
 		this.id = conf.id;
 		this.id_seed = 0;
@@ -44,12 +49,19 @@ App.CanvasView = App.PanelView.extend({
 	renderBody: function() {
 		if(!this.body) {
 			this.body = el = $(this.template()).get(0);
+			var $el = $(el);
+			if($el.is("canvas")) this.canvas = el;
+			else this.canvas = $el.find("canvas").get(0);
 
-			if($(el).is("canvas")) this.canvas = el;
-			else this.canvas = $(el).find("canvas").get(0);
 			this.canvas.width = this.width;
 			this.canvas.height = this.height;
 			this.ctx = this.canvas.getContext("2d");
+
+
+			$el.find(".pen_color").spectrum({
+			    color: this.pen.color,
+			    className: "pen_color"
+			});
 		}
 		return this.body;
 	},
@@ -64,7 +76,7 @@ App.CanvasView = App.PanelView.extend({
 		$("body").addClass("drawing");
 
 		var path = this.currentPath = {
-			pen: this.pen,
+			pen: _.clone(this.pen),
 			id: App.user + (this.id_seed++),
 			points: [this.getPosition(e)]
 		};
@@ -141,7 +153,7 @@ App.CanvasView = App.PanelView.extend({
 		});
 	},
 	resize: function() {
-		this.canvas.height = this.$(".modal-body").height();
+		this.canvas.height = this.$(".modal-body").height() - this.$(".controls").height();
 		this.redraw();
 		// this.canvas.w = this.$("modal-body").w();
 	}
