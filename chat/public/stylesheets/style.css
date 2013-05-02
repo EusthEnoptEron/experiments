@@ -132,16 +132,20 @@ form {
 	margin: 0;
 }
 
+body.drawing {
+	cursor: crosshair;
+}
+
 canvas {
 	background: #4D4D4D;
 	/*border: 1px solid #e3e3e3;*/
 	border-radius: 2px;
 }
 
-input.pen_color {
+.pen_color {
 	float: right;
 	background: #232427;
-	border: 1px solid #4D4D4D;
+	border: 1px solid #3D3D3D;
 	box-shadow: 1px 1px 3px rgb(20,20,20);
 }
 
