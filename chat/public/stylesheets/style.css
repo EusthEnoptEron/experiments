@@ -1,0 +1,336 @@
+@import url(http://fonts.googleapis.com/css?family=Titillium+Web);
+
+body {
+	padding: 50px;
+	/*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
+	font-family: 'Titillium Web', sans-serif;
+	color: white;
+	background: #444444;
+}
+
+body.drawing {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.container {
+	background: #10171B;
+	border-radius: 15px;
+	border: 3px solid #4D4D4D;
+	box-shadow: 0 0 50px rgba(100,100,150,0.7);
+}
+#chat {
+	/*display: flex;
+	display: -webkit-flex;
+	flex-direction: column;
+	-webkit-flex-direction: column;*/
+	/*height: 500px;*/
+	width: 600px;
+
+	/*background: white;*/
+}
+
+#chatroom, #userlist {
+	box-sizing: border-box;
+	height: 360px;
+	margin: 0;
+	margin-bottom: 5px;
+	/*padding: 0;*/
+}
+#chatroom {
+	width: 80%;
+	padding: 10px;
+	float: left;/*
+	background: transparent;
+	border: none;*/
+}
+#userlist {
+	background: #232427;
+	border: 1px solid #4D4D4D;
+	box-shadow: inset 1px 1px 3px rgb(20,20,20);
+	border-radius: 5px 0 0 5px;
+	margin-left: 81%;
+	list-style-type: none;
+}
+#userlist > li {
+	display: block;
+	border-bottom: 1px solid #CCC;
+}
+
+#input {
+	background: transparent;
+	border: none;
+	padding: 10px;
+}
+
+#input input[name=body] {
+	box-sizing: border-box;
+	width: 100%;
+	height: 30px;
+	background: black;
+	color: white;
+	border-color: #4D4D4D;
+}
+
+input {
+	font-family: 'Titillium Web', sans-serif;
+}
+
+#chatroom {
+	overflow: auto;
+}
+
+#chatroom li {
+	list-style-type: none;
+/*	display: flex;
+	display: -webkit-flex;*/
+	/*
+	-webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
+	-ms-box-orient: horizontal;
+	box-orient: horizontal;
+	-webkit-box-align: stretch;
+	-moz-box-align: stretch;
+	-ms-box-align: stretch;
+	box-align: stretch;
+	*/
+	/*width: 500px;
+	*/
+}
+
+#chatroom li > b {
+	/*width: 200px;*/
+	/*display: block;*/
+	/*flex: 1;*/
+	/*-webkit-flex: 1;*/
+	text-align: right;
+	margin-right: 10px;/*
+	border-right: 1px dotted #CCC;*/
+}
+
+#chatroom li > b:after {
+	content: ":";
+}
+
+#chatroom li > span {
+	/*width: 100%;*/
+	/*display: block;*/
+	/*flex: 5;*/
+	/*-webkit-flex: 5;*/
+}
+
+
+form {
+	margin: 0;
+}
+
+canvas {
+	background: #4D4D4D;
+	/*border: 1px solid #e3e3e3;*/
+	border-radius: 2px;
+}
+
+.user_viewport {
+	position: absolute;
+	border: 1px solid red;
+	border-radius: 3px;
+	z-index: -1;
+}
+
+.username {
+	text-shadow: 1px 1px 1px black, -1px 1px 1px black;
+}
+
+.handle {
+	background: black;
+	border-bottom: 1px solid #4D4D4D;
+	/*box-shadow: inset 0 0 15px #9d9d9d;*/
+	border-radius: 5px 5px 0 0;
+
+	padding-bottom: 0;
+	padding-top: 0;
+
+	cursor: move;
+}
+
+
+.handle h3 {
+	font-size: 1em;
+	padding: 0 20px;
+	padding-right: 40px;
+	margin:0;
+	display: inline-block;
+	background: #10171B;
+	border-radius: 1em 4em 0 0;
+	border: 1px solid #4D4D4D;
+	border-bottom: none;
+	position: relative;
+	top: 1.5px;
+}
+
+.panel {
+	width: 200px;
+	position: absolute !important;
+	box-shadow: 0 0 10px rgba(0,0,0,0.3);
+	min-height: 130px;
+}
+
+
+.panel > .modal-body {
+	overflow: hidden;
+	background: #10171B;
+	border: 1px solid #4D4D4D;
+	padding: 10px;
+	border-top: none;
+	border-radius: 0 0 1em 1em;
+	clear: both;
+}
+
+.panel.mode-docked .handle {
+	background-color: rgb(255, 126, 6);
+	height: 22px;
+	border-top-right-radius: 0;
+}
+
+.panel.mode-docked .handle h3,
+.panel.mode-hidden .handle h3,
+.panel.mode-embedded .handle h3 {
+	display: none;
+}
+
+.panel.mode-docked .handle,
+.panel.mode-hidden .handle,
+.panel.mode-embedded .handle {
+	cursor: default;
+}
+
+.panel.mode-embedded .handle {
+	background: none;
+}
+
+.panel.mode-embedded  {
+	box-shadow: none;
+}
+.panel.mode-embedded .modal-body {
+	background: none;
+	border: none;
+	border-right: 1px solid #666;
+	box-shadow: inset 0 0 10px black;
+}
+
+.panel.mode-docked,
+.panel.mode-hidden
+ {
+	margin-left: -20px;
+}
+
+.panel .buttons {
+	margin: 0 10px;
+}
+
+.panel .buttons .btn-close {
+	float: right;
+	margin: 0 5px;
+}
+
+.panel.mode-docked .buttons .btn-close {
+	float: left;
+}
+
+.panel.mode-docked .buttons .btn,
+.panel.mode-hidden .buttons .btn {
+	background: rgb(190, 86, 0);
+}
+
+.panel.mode-docked .buttons .btn:hover,
+.panel.mode-hidden .buttons .btn:hover {
+	background: rgb(210, 106, 0);
+}
+
+.panel.mode-docked:after,
+.panel.mode-hidden:after {
+	display: block;
+	position: absolute;
+	top: 10px;
+	right: -20px;
+	width: 20px;
+	content: "";
+	border-top: 2px solid rgb(210, 106, 0);
+}
+.panel.mode-hidden {
+	border: none;
+	box-shadow: none;
+}
+.panel.mode-hidden .handle {
+	background: none;
+	margin: 0;
+	padding: 0;
+}
+
+
+.panel.mode-hidden .handle .buttons {
+	float: right;
+	margin: 0;
+}
+
+#chatroom .docked {
+	background-color: rgb(255, 126, 6);
+}
+
+#loginForm h3 {
+	color: black;
+}
+
+
+.ui-resizable-handle {
+	position: absolute;
+	font-size: 0.1px;
+	display: block;
+}
+
+.ui-resizable-e {
+	cursor: e-resize;
+	width: 7px;
+	right: -5px;
+	top: 0;
+	height: 100%;
+}
+
+.ui-resizable-s {
+	cursor: s-resize;
+	height: 7px;
+	width: 100%;
+	bottom: -5px;
+	left: 0;
+}
+
+.ui-resizable-se {
+	cursor: se-resize;
+	width: 12px;
+	height: 12px;
+	right: 1px;
+	bottom: 1px;
+}
+
+
+#pastebinForm h3 {
+	color: black;
+}
+
+#pastebinForm textarea {
+	display: block;
+	font-family: monospace;
+	width: 97%;
+}
+
+#pastebinForm [type=submit] {
+	float: right;
+}
