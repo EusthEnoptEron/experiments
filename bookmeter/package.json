@@ -1,0 +1,17 @@
+{
+  "name": "bookmeter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Bookmeter fetcher",
+  "main": "index.js",
+  "repository": "",
+  "keywords": [
+    "bookmeter"
+  ],
+  "dependencies": {
+    "cheerio": ">=0.11.0",
+    "canvas": ""
+  },
+  "author": "Simon Meer",
+  "license": "BSD"
+}
