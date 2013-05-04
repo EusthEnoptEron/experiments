@@ -1,8 +1,12 @@
 var http = require('http'),
 	cheerio = require('cheerio'),
-	gm = require('gm');
+	Canvas = require("canvas");
 
-var url_base = "http://book.akahoshitakuya.com/u/49530/booklist",
+var urlBase = "http://book.akahoshitakuya.com/u/49530/booklist",
+	maxCols = 10,
+	margins  = 20,
+	imgWidth   = 107,
+	imgHeight  = 150,
 	novels   = [ 'http://ecx.images-amazon.com/images/I/51MpqVEGwKL._SL150_.jpg',
   'http://ecx.images-amazon.com/images/I/51ruDFB9YEL._SL150_.jpg',
   'http://ecx.images-amazon.com/images/I/51NstvzG6HL._SL150_.jpg',
@@ -183,7 +187,7 @@ function fetchPages(res) {
 		}
 
 		$(pages).each(function(i) {
-			var req = http.get(url_base + "&p=" + $(this).text().trim() );
+			var req = http.get(urlBase + "&p=" + $(this).text().trim() );
 			req.on("response", parsePage);
 
 			if(i == pages.length - 1) {
@@ -207,15 +211,15 @@ function parsePage(res) {
 }
 
 function finish() {
+	var width  = margins + maxCols * (imgWidth + margins);
+	var height = margins + Math.ceil(novels.length / maxCols) * (imgHeight + margins)
 	// creating an image
-	gm(200, 400, "#ddff99f3")
-	.drawText(10, 50, "from scratch")
-	.write("D:/text.jpg", function (err) {
-	 	console.log(err);
-	});
+	var canvas = new Canvas(width, height),
+		ctx    = canvas.getContext("2d");
+
 }
 
 
-// http.get(url_base).on("response", fetchPages)
+// http.get(urlBase).on("response", fetchPages)
 //                   .on("response", parsePage);
 finish();
