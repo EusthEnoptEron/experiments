@@ -3,7 +3,8 @@ var http = require('http'),
 	Canvas = require("canvas"),
 	Image = Canvas.Image,
 	fs = require('fs'),
-	crypto = require("crypto");
+	crypto = require("crypto"),
+	async = require("async");
 
 //+ Jonas Raoni Soares Silva
 //@ http://jsfromhell.com/array/shuffle [v1.0]
@@ -13,16 +14,16 @@ function shuffleArray(o){ //v1.0
 };
 
 var urlBase = "http://book.akahoshitakuya.com/u/49530/booklist",
-	maxCols = 10,
-	maxRows = 6,
+	maxCols = 15,
+	maxRows = 30,
 	margins  = 20,
+	paddings  = 3,
 	shuffle  = false,
-	onlyFullRows = true,
+	onlyFullRows = false,
 	imgWidth   = 107,
 	imgHeight  = 150,
 	background = "#FFFFFF",//"#6BAF79",
 	novels = [];
-
 
 // var observer = new (function() {
 // 	this.add = function() {
@@ -44,35 +45,45 @@ function getCheerio(res, callback) {
 	});
 }
 
-function fetchPages(res) {
-	getCheerio(res, function($) {
-		var pages = [];
-		var p = $(".page_navis span.now_page");
-		while((p = p.next().filter(":not(.page_navi_hedge)")).length) {
-			pages.push(p);
-		}
+function fetchPages(cb, $) {
+	var pages = [];
+	var p = $(".page_navis span.now_page");
+	while((p = p.next().filter(":not(.page_navi_hedge)")).length) {
+		pages.push(p);
+	}
+	var tasks = [];
 
-		$(pages).each(function(i) {
-			var req = http.get(urlBase + "&p=" + $(this).text().trim() );
-			req.on("response", parsePage);
-
+	$(pages).each(function(i) {
+		var el = this;
+		tasks.push(function(callback) {
+			var req = http.get(urlBase + "&p=" + $(el).text().trim() );
+			var pp = parsePage;
+		
 			if(i == pages.length - 1) {
 				// Fetch next set of books
-				req.on("response", fetchPages);
+				pp = pp.bind(null, true, callback);
+			} else {
+				pp = pp.bind(null, false, callback);
 			}
+			req.on("response", pp);
 		});
-
-		if(pages.length == 0) {
-			finish();
-		}
 	});
+	async.parallel(tasks, cb);
 }
 
-function parsePage(res) {
+function parsePage(fetch, cb, res) {
 	getCheerio(res, function($) {
-		$(".book_box_book_image img").each(function() { 
-			novels.push($(this).attr("src")); 
+		$(".book").each(function() {
+			novels.push({
+				url: $(this).find(".book_box_book_image img").attr("src"),
+				name: $(this).find(".book_box_book_title").text().match(/^[^(]+/)[0].trim()
+			});
 		});
+		if(fetch) {
+			fetchPages(cb, $);
+		} else {
+			cb();
+		}
 	});
 }
 
@@ -112,7 +123,7 @@ function loadImage(url, callback) {
 }
 
 function finish() {
-	var out = fs.createWriteStream(__dirname + '/text.jpg');
+	var out = fs.createWriteStream(__dirname + '/paper.jpg');
 
 	var width  = maxCols * (imgWidth + margins);
 	
@@ -131,31 +142,62 @@ function finish() {
 
 	var toLoad = novels.length;
 	ctx.lineJoin    ="round";
-	ctx.lineWidth = 5;
-	ctx.strokeStyle = "#777";
-	novels.forEach(function(url, i) {
+	ctx.strokeStyle = "rgb(63, 177, 185)";
+	ctx.fillStyle = "rgb(111, 197, 203)";
+	ctx.globalAlpha = 1;
+	ctx.lineWidth = 1;
+	ctx.textBaseline="hanging";
+	ctx.textAlign="center";
+
+	novels.forEach(function(novel, i) {
 		var col = i % maxCols;
 		var row = Math.floor(i / maxCols);
 
-		loadImage(url, function(img) {
+		// Load image
+		loadImage(novel.url, function(img) {
 			toLoad--;
-			ctx.globalAlpha = 0.8;
-			ctx.drawImage(
-				img,
-				col * (imgWidth + margins),
-        row * (imgHeight + margins),
-        imgWidth,
-        imgHeight);
-				ctx.globalAlpha = 1;
-			ctx.strokeRect(col * (imgWidth + margins),
-		               row * (imgHeight + margins),
+			var x = col * (imgWidth + margins),
+				y = row * (imgHeight + margins);
+
+			ctx.fillRect(x,
+		               y,
 		               imgWidth,
 		               imgHeight);
+
+			// Draw image
+			ctx.globalAlpha = 1;
+			ctx.drawImage(
+				img,
+				x + paddings,
+				y + paddings,
+				imgWidth - paddings * 2,
+				imgHeight - paddings * 2);
+
+			ctx.globalAlpha = 0.8;
+
+			ctx.fillRect(x,
+			           y + imgHeight * 0.8,
+			           imgWidth,
+			           imgHeight * 0.2);
+			ctx.globalAlpha = 1;
+			ctx.save();
+			ctx.lineWidth = 2;
+			ctx.font = "12px TakaoExMincho";
+			ctx.fillStyle = "#FFFFFF";
+			wrapText(ctx, novel.name, x + imgWidth/2, y + imgHeight * .8, imgWidth - paddings * 2, 15);
+			ctx.restore();
+
+
+			ctx.strokeRect(x,
+			           y,
+			           imgWidth,
+			           imgHeight);
+
 
 			if(!toLoad) {
 				canvas.createJPEGStream({
 					bufsize : 2048,
-    			quality : 60
+					quality : 80
 				}).pipe(out);
 			}
 		});
@@ -164,6 +206,28 @@ function finish() {
 }
 
 
-http.get(urlBase).on("response", fetchPages)
-                  .on("response", parsePage);
+http.get(urlBase).on("response", parsePage.bind(null, true, finish));
 // finish();
+
+
+
+
+function wrapText(context, text, x, y, maxWidth, lineHeight) {
+	var words = text.split('');
+	var line = '';
+
+	for(var n = 0; n < words.length; n++) {
+	  var testLine = line + words[n] + ' ';
+	  var metrics = context.measureText(testLine);
+	  var testWidth = metrics.width;
+	  if(testWidth > maxWidth) {
+	    context.fillText(line, x, y);
+	    line = words[n] + ' ';
+	    y += lineHeight;
+	  }
+	  else {
+	    line = testLine;
+	  }
+	}
+	context.fillText(line, x, y);
+}
