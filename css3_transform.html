@@ -5,6 +5,10 @@
 		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 		<script>
 		$(function() {
+			$("textarea").on("blur", function() {
+				$("#viewport").addClass("animating");
+			});
+
 			var canvas = document.createElement("canvas");
 			canvas.width  = window.innerWidth;
 			canvas.height = window.innerHeight;
@@ -23,28 +27,17 @@
 			for(var i = 0; i < starCount; i++) {
 				var x = Math.random() * canvas.width;
 				var y = Math.random() * canvas.height;
-				if(Math.random() < 0.9) {
-					simpleStars.push([x,y]);
-				} else {
+				// if(Math.random() < 0.9) {
+				// 	simpleStars.push([x,y]);
+				// } else {
 					stars.push(new Star(x,y));
-				}
+				// }
 			}
 
 			function animate() {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				simpleStars.forEach(function(el) {
-					ctx.beginPath();
-					ctx.arc( el[0], 
-						     el[1],
-						     Math.random() * 0.5 + 0.5,
-						     0, 2 * Math.PI );
-					var type = Math.random();
-					if(type < 0.8) {
-						ctx.fillStyle = "white";
-					} else if(type < 0.9) {
-						ctx.fillStyle = "red";
-					}
-					ctx.fill();
+				stars.forEach(function(el) {
+					el.draw(ctx);
 				});/*
 				stars.forEach(function(el) {
 					el.draw(ctx);
@@ -57,10 +50,32 @@
 		function Star(x,y) {
 			this.x = x;
 			this.y = y;
+			this.opacity = Math.random();
+			var type = Math.random();
+			if(type < 0.8) {
+				this.color = "255,255,255";
+			} else if(type < 0.9) {
+				this.color = "255,0,0";
+			}
+			this.speed = Math.random() * 0.1;
 		}
 		Star.prototype = {
 			draw: function(ctx) {
-				
+				this.opacity += this.speed;
+				if(this.opacity > 1 || this.opacity < 0) {
+					this.speed *= -1;
+					this.draw(ctx);
+					return;
+				}
+
+				ctx.beginPath();
+				ctx.arc( this.x, 
+					     this.y,
+					     1,
+					     0, 2 * Math.PI );
+
+				ctx.fillStyle = "rgba("+this.color+","+this.opacity+")";
+				ctx.fill();
 			}
 		};
 		</script>
@@ -70,6 +85,7 @@
 			padding: 0;
 			height: 100%;
 			text-align: center;
+			overflow: hidden;
 			/*background: #012;*/
 		}
 		#bg {
@@ -77,13 +93,32 @@
 			top: 0;
 			left: 0;
 			z-index: -1;
-			background: -webkit-gradient(linear, 0 0, 100% 100%, from(#023), to(#011));
-			background: -webkit-linear-gradient(left top, #023, #011);
-			background: -moz-linear-gradient(left top, #023, #011);
-			background: -o-linear-gradient(left top, #023, #011);
-			background: linear-gradient(left top, #023, #011); 
+			background: -webkit-gradient(linear, 0 0, 100% 100%, from(#012), to(#000));
+			background: -webkit-linear-gradient(left top, #012, #000);
+			background: -moz-linear-gradient(lAdeft top, #012, #000);
+			background: -o-linear-gradient(left top, #012, #000);
+			background: linear-gradient(left top, #012, #000); 
 		}
+
+		#viewport {
+			-webkit-perspective: 500px;
+			height: 500px;
+		}
+
+		#camera {
+			-webkit-transform-style: preserve-3d;
+			height: 500px;
+		}
+
+		#viewport.animating #camera {
+			-webkit-animation-duration: 30s;
+  			-webkit-animation-name: slidein;
+		}
+
+
 		textarea {
+			-webkit-transform-origin: 50% 0;
+
 			font-family: Impact, sans-serif;
 			border: none;
 			background: none;
@@ -91,15 +126,37 @@
 			/*font-weight: bold;*/
 			font-size: 1.5em;
 			color: #FBFF62;
-			
-			-webkit-transform: rotateX(45deg) ;
-			-webkit-transform-origin: 50% 0%;
 		}
+
+		textarea {
+			 /*-webkit-transform: rotateX(55deg) translateZ(-200px) translateY(180px);*/
+			-webkit-transform-origin: 50% 0;
+		 	
+		}
+
+
+		@-webkit-keyframes slidein {
+		  from {
+		    -webkit-transform: rotateX(50deg) translateY(500px) ;
+		  }
+		 
+		  to {
+		  	-webkit-transform: rotateX(50deg) translateY(-500px) ;
+		  }
+		}
+
+
 		</style>
 	</head>
 	<body>
-		<div style="-webkit-perspective: 500">
-			<textarea name="text" id="text" cols="80" rows="10"></textarea>
+		<div id="viewport">
+			<div id="camera">
+				<textarea name="text" id="text" cols="80" rows="10">
+					STAR WARS
+
+					Once upon a time in a galaxy far, far away...
+				</textarea>
+			</div>
 		</div>
 	</body>
 </html>
