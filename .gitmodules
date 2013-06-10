@@ -1,0 +1,3 @@
+[submodule "bookmeter/node_modules/canvas"]
+	path = bookmeter/node_modules/canvas
+	url = https://github.com/LearnBoost/node-canvas.git

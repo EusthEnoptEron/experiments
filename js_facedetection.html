@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Face detection</title>
+		<script src="libs/headtrackr.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/tweenjs/0.3.0/tween.min.js"></script>
+	</head>
+	<body>
+		<canvas id="inputCanvas" width="320" height="240"></canvas>
+		<video id="inputVideo" style="display:none" autoplay loop></video>
+
+		<script>
+		var htracker;
+		$(function() {
+			var status = {
+				status: "!",
+				baseAngle: Math.PI/2,
+				angle: 0.01,
+				started: false
+			};
+			var videoInput = document.getElementById('inputVideo');
+			var canvasInput = document.getElementById('inputCanvas');
+
+			document.addEventListener('headtrackrStatus', 
+				function (e) {
+					status.status = e.status;
+	  			}
+			);
+
+			var firstTime = true;
+			document.addEventListener('facetrackingEvent', function(e) {
+				if(firstTime) {
+					status.baseAngle = e.angle;
+					firstTime = false;
+					status.started = true;
+				}
+				// console.log(status);
+				status.angle = e.angle;
+				onTilt(e.angle);
+
+			});
+
+
+			htracker = new headtrackr.Tracker({
+				calcAngles: true,
+				headPosition: false,
+				debug: canvasInput
+			});
+			htracker.init(videoInput, canvasInput);
+			htracker.start();
+
+
+			var gui = new dat.GUI();
+			gui.add(status, "status").listen();
+			gui.add(status, "baseAngle", 0, Math.PI*2, 0.01).listen();
+			gui.add(status, "angle", 0, Math.PI*2, 0.01).listen();
+			// gui.add(text, 'speed', -5, 5);
+			// gui.add(text, 'displayOutline');
+			// gui.add(text, 'explode');
+			
+			var loremIpsums = 0xFF;
+			var node = $("<p>").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit, sunt, ullam iusto nemo eum harum aliquid doloremque quos ratione impedit possimus aut debitis nihil quo iste quam voluptatem laborum vero.");
+
+			for(var i = 0; i< loremIpsums; i++) {
+				$("body").append(node.clone());
+			}
+
+			/*
+			setInterval(function() {
+				if(status.started) {
+					var angle = status.baseAngle - status.angle;
+					if(Math.abs(angle) > 0.1) {
+						var scrolled = $(window).scrollTop();
+						// var height = window.height;
+						$(window).scrollTop(scrolled + 100 * angle);
+					}
+				}
+			}, 100);
+			*/
+			function onTilt(angle) {
+				angle = status.baseAngle - angle;
+
+				var middle = [
+					window.innerWidth / 2 + window.scrollX,
+					window.innerHeight / 2 + window.scrollY
+				];
+
+				$("body").css("transform-origin", middle[0] + "px " + middle[1] + "px")
+						 .css("transform", "rotate("+angle+"rad)");
+
+			}
+
+		});
+		</script>
+		
+	</body>
+</html>
