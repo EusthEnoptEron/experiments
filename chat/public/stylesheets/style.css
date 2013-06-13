@@ -132,10 +132,21 @@ form {
 	margin: 0;
 }
 
+body.drawing {
+	cursor: crosshair;
+}
+
 canvas {
 	background: #4D4D4D;
 	/*border: 1px solid #e3e3e3;*/
 	border-radius: 2px;
+}
+
+.pen_color {
+	float: right;
+	background: #232427;
+	border: 1px solid #3D3D3D;
+	box-shadow: 1px 1px 3px rgb(20,20,20);
 }
 
 .user_viewport {
@@ -200,10 +211,18 @@ canvas {
 	border-top-right-radius: 0;
 }
 
+.panel {
+	z-index: 2;
+}
+.panel.mode-hidden {
+	z-index: 1;
+}
+
 .panel.mode-docked .handle h3,
 .panel.mode-hidden .handle h3,
 .panel.mode-embedded .handle h3 {
 	display: none;
+
 }
 
 .panel.mode-docked .handle,

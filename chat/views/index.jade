@@ -10,7 +10,11 @@ block content
 	script(type='text/template', id='template-user-in-list')
 		li.username(style!="border-color: <%- color %>") <%- name %>
 	script(type='text/template', id='template-canvas')
-		canvas(width="400", height="200")
+		div
+			.controls
+				input.pen_width(type="range", min="1", max="10", step="1", value="2")
+				input.pen_color(value="#000000")
+			canvas(width="400", height="200")
 	script(type='text/template', id='template-panel')
 		.modal-header.handle
 			h3 <%= header %>
@@ -45,7 +49,7 @@ block content
 		ul#userlist.well
 		form#input.form-horizontal(method="post")
 				input(type="text", name="body", autocomplete="off")
-		#loginForm.modal.hide.fade(role="dialog", data-backdrop="static")
+		#loginForm.modal.hide.fade(role="dialog", keyboard="false", data-backdrop="static")
 			.modal-body
 				h3 Tell us who you are!
 				form.form-search

@@ -69,8 +69,79 @@ app.set("users", users);
 
 ssio.on('connection', function (err, socket, session) {
 	if(err) return;
-	console.log("CONNECT");
+
+
 	var logged = false;
+	function listen() {
+		// HANDLE MESSAGES
+		socket.on("post", function(data) {
+			if(session.user) {
+				data.name = session.user;
+				data.id   = msg_id_seed++;
+				var pid = data.p_id;
+				
+				var cmd = extractCommands(data).shift();
+
+				switch(cmd) {
+					case "draw":
+						// Create a canvas
+						var id = "c_" + (id_seed++);
+						var obj = {
+							id: id,
+							action: "create",
+							message: data.id
+						};
+
+						socket.broadcast.emit("post", data);
+						socket.broadcast.emit("canvas_action", obj);
+						obj.message = pid;
+						socket.emit("canvas_action", obj);
+						break;
+					case "code":
+						msgCache[data.id] = data;
+						socket.emit("request_code", data.id);
+						break;
+					default:
+						socket.broadcast.emit("post", data);
+						break;
+				}
+			}
+		});
+
+		socket.on("post_code", function(token, values) {
+			var post = msgCache[token];
+			if(post) {
+				socket.broadcast.emit("post", post);
+				values.id = "c_" + (id_seed++);
+				values.message = post.id;
+				socket.broadcast.emit("pastebin:create", values);
+				values.message = post.p_id;
+				socket.emit("pastebin:create", values);
+			}
+		});
+
+		socket.on("notify", function(data) {
+			socket.broadcast.emit("user_notify", session.user, data);
+		});
+
+		socket.on("canvas_action", function(config) {
+			socket.broadcast.emit("canvas_action." + config.id, config);
+		});
+
+		socket.on("pastebin:update", function(id, deltas) {
+			socket.broadcast.emit("pastebin." + id + ":update", deltas);
+		});
+
+
+		// HANDLE DISCONNECT
+		socket.on('disconnect', function() {
+			delete users[session.user];
+			io.sockets.emit("user_leaves", session.user);
+		});
+
+	}
+
+
 	function login(success) {
 		if(!logged) {
 			logged = true;
@@ -78,98 +149,38 @@ ssio.on('connection', function (err, socket, session) {
 				name: session.user,
 				success: success
 			});
-			// io.sockets.emit("user_list", users);
-			io.sockets.emit("user_joins", session.user);
 
-			if(!(session.user in users)) {
-				users[session.user] = {
-					viewport: []
-				};
+			if(success) {
+				listen();
+				// io.sockets.emit("user_list", users);
+				io.sockets.emit("user_joins", session.user);
+
+				if(!(session.user in users)) {
+					users[session.user] = {
+						viewport: []
+					};
+				}
 			}
 		}
 	}
 
-	// HANDLE MESSAGES
-	socket.on("post", function(data) {
-		if(session.user) {
-			data.name = session.user;
-			data.id   = msg_id_seed++;
-			var pid = data.p_id;
-			
-			var cmd = extractCommands(data).shift();
-
-			switch(cmd) {
-				case "draw":
-					// Create a canvas
-					var id = "c_" + (id_seed++);
-					var obj = {
-						id: id,
-						action: "create",
-						message: data.id
-					};
-
-					socket.broadcast.emit("post", data);
-					socket.broadcast.emit("canvas_action", obj);
-					obj.message = pid;
-					socket.emit("canvas_action", obj);
-					break;
-				case "code":
-					msgCache[data.id] = data;
-					socket.emit("request_code", data.id);
-					break;
-				default:
-					socket.broadcast.emit("post", data);
-					break;
-			}
-		}
-	});
-
-	socket.on("post_code", function(token, values) {
-		var post = msgCache[token];
-		if(post) {
-			socket.broadcast.emit("post", post);
-			values.id = "c_" + (id_seed++);
-			values.message = post.id;
-			socket.broadcast.emit("pastebin:create", values);
-			values.message = post.p_id;
-			socket.emit("pastebin:create", values);
-		}
-	});
-
-	socket.on("notify", function(data) {
-		socket.broadcast.emit("user_notify", session.user, data);
-	});
-
-	socket.on("canvas_action", function(config) {
-		socket.broadcast.emit("canvas_action." + config.id, config);
-	});
-
-	socket.on("pastebin:update", function(id, deltas) {
-		socket.broadcast.emit("pastebin." + id + ":update", deltas);
-	});
-
-
-
 	// HANDLE LOGIN
 	socket.on("login", function(name) {
 		var success = false;
+		name = name.trim();
 
 		if(!session.user) {
 			if(!(name in users)) {
-				success = true;
-				session.user = name;
-				session.save();
+				if(name.length > 3
+					&& name.match(/^\w+$/)) {
+					success = true;
+					session.user = name;
+					session.save();
+				}
 			}
 		}
 		login(success);
 	});
-
-	// HANDLE DISCONNECT
-	socket.on('disconnect', function() {
-		delete users[session.user];
-		io.sockets.emit("user_leaves", session.user);
-	});
-
 
 	// CONSTRUCTOR
 	if(session.user) {
