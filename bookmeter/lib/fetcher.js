@@ -2,13 +2,15 @@ var Promise = require('promise'),
 	Parser  = require("./parser.js"),
 	cheerio = require('cheerio'),
 	http    = require('http'),
+	fs      = require("fs"),
 	_       = require("underscore");
 
 
 var defaults = {
 	uid: 49530,
 	page: "booklist",
-	baseUrl: "http://book.akahoshitakuya.com/u/"
+	baseUrl: "http://book.akahoshitakuya.com/u/",
+	data: undefined
 };
 
 
@@ -95,7 +97,17 @@ Fetcher.prototype.fetchAll = function() {
 		self.resolve = resolve;
 		self.reject = reject;
 
-		self.process(0, true).then(null, self.reject);
+		if(self.opt.data) {
+			// We've already got the needed data
+			fs.readFile(self.opt.data, function(err, data) {
+				if(err) reject();
+				else {
+					resolve(JSON.parse(data));
+				}
+			});
+		} else {
+			self.process(0, true).then(null, self.reject);
+		}
 	});
 };
 
