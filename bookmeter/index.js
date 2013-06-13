@@ -4,7 +4,8 @@ var http = require('http'),
 	Image = Canvas.Image,
 	fs = require('fs'),
 	crypto = require("crypto"),
-	async = require("async");
+	async = require("async"),
+	fetch = require("./fetcher.js").fetch;
 
 //+ Jonas Raoni Soares Silva
 //@ http://jsfromhell.com/array/shuffle [v1.0]
@@ -25,67 +26,7 @@ var urlBase = "http://book.akahoshitakuya.com/u/49530/booklist",
 	background = "#FFFFFF",//"#6BAF79",
 	novels = [];
 
-// var observer = new (function() {
-// 	this.add = function() {
 
-// 	}
-// 	this.remove = function() {
-
-// 	}
-// })();
-
-function getCheerio(res, callback) {
-	res.setEncoding('utf8');
-	var body = "";
-	res.on('data', function (chunk) {
-		body += chunk;
-	});
-	res.on("end", function() {
-		callback(cheerio.load(body));
-	});
-}
-
-function fetchPages(cb, $) {
-	var pages = [];
-	var p = $(".page_navis span.now_page");
-	while((p = p.next().filter(":not(.page_navi_hedge)")).length) {
-		pages.push(p);
-	}
-	var tasks = [];
-
-	$(pages).each(function(i) {
-		var el = this;
-		tasks.push(function(callback) {
-			var req = http.get(urlBase + "&p=" + $(el).text().trim() );
-			var pp = parsePage;
-		
-			if(i == pages.length - 1) {
-				// Fetch next set of books
-				pp = pp.bind(null, true, callback);
-			} else {
-				pp = pp.bind(null, false, callback);
-			}
-			req.on("response", pp);
-		});
-	});
-	async.parallel(tasks, cb);
-}
-
-function parsePage(fetch, cb, res) {
-	getCheerio(res, function($) {
-		$(".book").each(function() {
-			novels.push({
-				url: $(this).find(".book_box_book_image img").attr("src"),
-				name: $(this).find(".book_box_book_title").text().match(/^[^(]+/)[0].trim()
-			});
-		});
-		if(fetch) {
-			fetchPages(cb, $);
-		} else {
-			cb();
-		}
-	});
-}
 
 function loadImage(url, callback) {
 	var hash = crypto.createHash('md5').update(url).digest("hex"),
@@ -122,7 +63,8 @@ function loadImage(url, callback) {
 	});
 }
 
-function finish() {
+function finish(novels) {
+	console.log(novels.length);
 	var out = fs.createWriteStream(__dirname + '/paper.jpg');
 
 	var width  = maxCols * (imgWidth + margins);
@@ -206,9 +148,9 @@ function finish() {
 }
 
 
-http.get(urlBase).on("response", parsePage.bind(null, true, finish));
+// http.get(urlBase).on("response", parsePage.bind(null, true, finish));
 // finish();
-
+fetch().then(finish);
 
 
 
