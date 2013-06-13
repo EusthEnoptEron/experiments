@@ -1,175 +1,33 @@
-var http = require('http'),
-	cheerio = require('cheerio'),
-	Canvas = require("canvas"),
-	Image = Canvas.Image,
-	fs = require('fs'),
-	crypto = require("crypto"),
-	async = require("async"),
-	fetch = require("./fetcher.js").fetch;
+var fs = require('fs'),
+	program = require("commander"),
+	fetch = require("./lib/fetcher.js").fetch,
+	drawCovers = require("./lib/images.js").drawCovers;
 
-//+ Jonas Raoni Soares Silva
-//@ http://jsfromhell.com/array/shuffle [v1.0]
-function shuffleArray(o){ //v1.0
-    for(var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
-};
+program
+	.usage("[options] <output.jpg>")
+	.option("-u, --uid []", "User ID", 49530)
+	.option("--page []", "Page to fetch from [booklist]", "booklist")
+	.option("--maxCols []", "Max number of columns", 15)
+	.option("--maxRows []", "Max number of rows", 30)
+	.option("-m, --margins []", "margin width in pixels", 20)
+	.option("-p, --paddings []", "padding with in pixels", 3)
+	.option("-s, --shuffle []", "shuffle novels or not")
+	.option("--onlyFullRows []", "allow only for full rows or not")
+	.option("-w, --imgWidth []", "width of each cover", 107)
+	.option("-h, --imgHeight []", "height of each cover", 150)
+	.option("--background []", "background color", "#FFFFFF")
+	.parse(process.argv);
 
-var urlBase = "http://book.akahoshitakuya.com/u/49530/booklist",
-	maxCols = 15,
-	maxRows = 30,
-	margins  = 20,
-	paddings  = 3,
-	shuffle  = false,
-	onlyFullRows = false,
-	imgWidth   = 107,
-	imgHeight  = 150,
-	background = "#FFFFFF",//"#6BAF79",
-	novels = [];
-
-
-
-function loadImage(url, callback) {
-	var hash = crypto.createHash('md5').update(url).digest("hex"),
-		  path = __dirname + "/cache/" + hash,
-		  img  = new Image;
-	if(!fs.existsSync(__dirname + "/cache")) {
-		fs.mkdirSync(__dirname + "/cache");
-	}
-
-	fs.exists(path, function(exists) {
-		if(exists) {
-			fs.readFile(path, function(err, buffer) {
-				img.src = buffer;
-				callback(img);
-			});
-		} else {
-			http.get(url, function(res) {
-				var imagedata = '';
-				res.setEncoding('binary');
-
-				res.on('data', function(chunk){
-	    		imagedata += chunk
-				})
-
-				res.on('end', function(){
-					fs.writeFile(path, imagedata, 'binary', function(err){
-						if(!err) {
-							loadImage(url, callback);
-						}
-					})
-				})
-			});
-		}
+if(program.args.length) {
+	fetch({
+		uid: program.uid,
+		page: program.page
+	})
+	.then(function(novels) {
+		var out = fs.createWriteStream(program.args[0]);
+		drawCovers(novels, out, program);
 	});
+} else {
+	program.outputHelp();
 }
 
-function finish(novels) {
-	console.log(novels.length);
-	var out = fs.createWriteStream(__dirname + '/paper.jpg');
-
-	var width  = maxCols * (imgWidth + margins);
-	
-	var rows = Math.min(maxRows, novels.length / maxCols);
-	if(onlyFullRows) rows = Math.floor(rows);
-	else rows = Math.ceil(rows);
-
-	var height = rows * (imgHeight + margins)
-	// creating an image
-	var canvas = new Canvas(width, height),
-	ctx    = canvas.getContext("2d");
-	ctx.fillStyle = background;
-	ctx.fillRect(0, 0, width, height);
-	if(shuffle)
-		novels = shuffleArray(novels);
-
-	var toLoad = novels.length;
-	ctx.lineJoin    ="round";
-	ctx.strokeStyle = "rgb(63, 177, 185)";
-	ctx.fillStyle = "rgb(111, 197, 203)";
-	ctx.globalAlpha = 1;
-	ctx.lineWidth = 1;
-	ctx.textBaseline="hanging";
-	ctx.textAlign="center";
-
-	novels.forEach(function(novel, i) {
-		var col = i % maxCols;
-		var row = Math.floor(i / maxCols);
-
-		// Load image
-		loadImage(novel.url, function(img) {
-			toLoad--;
-			var x = col * (imgWidth + margins),
-				y = row * (imgHeight + margins);
-
-			ctx.fillRect(x,
-		               y,
-		               imgWidth,
-		               imgHeight);
-
-			// Draw image
-			ctx.globalAlpha = 1;
-			ctx.drawImage(
-				img,
-				x + paddings,
-				y + paddings,
-				imgWidth - paddings * 2,
-				imgHeight - paddings * 2);
-
-			ctx.globalAlpha = 0.8;
-
-			ctx.fillRect(x,
-			           y + imgHeight * 0.8,
-			           imgWidth,
-			           imgHeight * 0.2);
-			ctx.globalAlpha = 1;
-			ctx.save();
-			ctx.lineWidth = 2;
-			ctx.font = "12px TakaoExMincho";
-			ctx.fillStyle = "#FFFFFF";
-			wrapText(ctx, novel.name, x + imgWidth/2, y + imgHeight * .8, imgWidth - paddings * 2, 15);
-			ctx.restore();
-
-
-			ctx.strokeRect(x,
-			           y,
-			           imgWidth,
-			           imgHeight);
-
-
-			if(!toLoad) {
-				canvas.createJPEGStream({
-					bufsize : 2048,
-					quality : 80
-				}).pipe(out);
-			}
-		});
-	});
-
-}
-
-
-// http.get(urlBase).on("response", parsePage.bind(null, true, finish));
-// finish();
-fetch().then(finish);
-
-
-
-function wrapText(context, text, x, y, maxWidth, lineHeight) {
-	var words = text.split('');
-	var line = '';
-
-	for(var n = 0; n < words.length; n++) {
-	  var testLine = line + words[n] + ' ';
-	  var metrics = context.measureText(testLine);
-	  var testWidth = metrics.width;
-	  if(testWidth > maxWidth) {
-	    context.fillText(line, x, y);
-	    line = words[n] + ' ';
-	    y += lineHeight;
-	  }
-	  else {
-	    line = testLine;
-	  }
-	}
-	context.fillText(line, x, y);
-}

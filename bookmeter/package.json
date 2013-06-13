@@ -13,7 +13,8 @@
     "canvas": "",
     "async":"",
     "promise":"",
-    "underscore":""
+    "underscore":"",
+    "commander": ""
   },
   "author": "Simon Meer",
   "license": "BSD"
