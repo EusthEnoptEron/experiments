@@ -2,12 +2,20 @@
 <html>
 	<head>
 		<title>3D</title>
+		<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
 		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
 		<script>
+
 		$(function() {
-			$("textarea").on("blur", function() {
-				$("#viewport").addClass("animating");
+			$("body").on("click", ".btn-show", function() {
+				$("#input").one("hidden", function() {
+							$("#text").text($("#input textarea").val());
+							$("#viewport").addClass("animating");
+						 }).modal("hide");
+				return false;
 			});
+			$("#input").modal();
 
 			var canvas = document.createElement("canvas");
 			canvas.width  = window.innerWidth;
@@ -20,7 +28,7 @@
 			}).append(canvas);
 			
 
-			var starCount = 1000;
+			var starCount = 2000;
 			var stars = [];
 			var simpleStars = [];
 
@@ -46,6 +54,7 @@
 				requestAnimationFrame(animate);
 			}
 			animate();
+
 		});
 		function Star(x,y) {
 			this.x = x;
@@ -101,7 +110,7 @@
 		}
 
 		#viewport {
-			-webkit-perspective: 500px;
+			-webkit-perspective: 500px;t
 			height: 500px;
 		}
 
@@ -115,23 +124,24 @@
   			-webkit-animation-name: slidein;
 		}
 
-
-		textarea {
+		#text {
 			-webkit-transform-origin: 50% 0;
-
+	 		-webkit-transform: translateZ(-300px);
 			font-family: Impact, sans-serif;
 			border: none;
 			background: none;
 			outline: none;
 			/*font-weight: bold;*/
-			font-size: 1.5em;
+			font-size: 3.5em;
 			color: #FBFF62;
+			white-space: pre;
 		}
 
 		textarea {
-			 /*-webkit-transform: rotateX(55deg) translateZ(-200px) translateY(180px);*/
-			-webkit-transform-origin: 50% 0;
-		 	
+			box-sizing: border-box;
+			width: 100%;
+			max-width: 100%;
+			min-width: 100%;
 		}
 
 
@@ -151,11 +161,18 @@
 	<body>
 		<div id="viewport">
 			<div id="camera">
-				<textarea name="text" id="text" cols="80" rows="10">
-					STAR WARS
+				<div id="text">
+				</div>
+			</div>
+		</div>
+		<div id="input" class="modal hide fade" data-show="true" data-backdrop="static" role="dialog">
+			<div class="modal-body">
+				<textarea name="text" cols="80" rows="10">STAR WARS
 
-					Once upon a time in a galaxy far, far away...
-				</textarea>
+Once upon a time in a galaxy far, far away...</textarea>
+			</div>
+			<div class="modal-footer">
+				<a href="#" class="btn-show btn btn-primary">Animate</a>
 			</div>
 		</div>
 	</body>
