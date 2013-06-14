@@ -3,4 +3,5 @@
 For debian:  
 `apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++`
 
-Also, remember installing `node-gyp`.
+You'll also want a font:  
+`apt-get install ttf-takao-mincho`

@@ -19,6 +19,8 @@ program
 	.option("-h, --imgHeight []", "height of each cover", Number, 150)
 	.option("--background []", "background color", "#000000")
 	.option("--font []", "font to be used", "TakaoExMincho")
+	.option("-t, --text", "display text or not")
+	.option("-b, --border []", "border color if there should be one", String)
 	.parse(process.argv);
 
 // console.log(program);
