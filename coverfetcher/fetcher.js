@@ -10,6 +10,13 @@ program
 	.option("-t, --timeout [ms]", "timeout between fetches (0 for parallel)", Number, 1000)
 	.parse(process.argv);
 
+var illegalCharacters = ["\\","<",">","*","?","/","\"",":","|"];
+function normalize(path) {
+	illegalCharacters.forEach(function(letter) {
+		path = path.split(letter).join("");
+	});
+	return path;
+};
 
 if(program.in) {
 	// load json
@@ -26,11 +33,11 @@ if(program.in) {
 			var suffix = task.url.match("\.\w+$");
 			if(suffix) suffix = suffix[0];
 			else suffix = ".jpg";
-			var path = program.out + "/" + task.name + suffix;
+			var path = program.out + "/" + normalize(task.name + suffix);
 
 			if(!fs.existsSync(path)) {
-				var out = fs.createWriteStream(program.out + "/" + task.name + suffix);
-				console.log("download " + task.url);
+				console.log("download " + task.url + " > " + path);
+				var out = fs.createWriteStream(path);
 				http.get(task.url, function(res) {
 					res.pipe(out);
 				});
