@@ -6,7 +6,7 @@ var fs = require('fs'),
 program
 	.usage("[options] <output>")
 	.option("-f, --format []", "file format [jpg|png|json]", "jpg")
-	.option("-d, --data []", "load data from json file")
+	.option("-i, --data []", "load data from json file")
 	.option("-u, --uid []", "user ID", 49530)
 	.option("--page []", "page to fetch from [booklist]", "booklist")
 	.option("--maxCols []", "max number of columns", 15)
