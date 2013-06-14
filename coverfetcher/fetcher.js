@@ -8,6 +8,7 @@ program
 	.option("-i, --in <json>", "input file location")
 	.option("-o, --out [path]", "output location [.]", ".")
 	.option("-t, --timeout [ms]", "timeout between fetches (0 for parallel)", Number, 1000)
+	.option("-w, --workers [num]", "number of workers [1]", Number, 1)
 	.parse(process.argv);
 
 var illegalCharacters = ["\\","<",">","*","?","/","\"",":","|"];
@@ -28,8 +29,9 @@ if(program.in) {
 	}
 
 	function download() {
+
 		var task = data.shift();
-		if(task.name && task.url) {
+		if(task && task.name && task.url) {
 			var suffix = task.url.match("\.\w+$");
 			if(suffix) suffix = suffix[0];
 			else suffix = ".jpg";
@@ -42,20 +44,18 @@ if(program.in) {
 					res.pipe(out);
 				});
 
-				if(program.timeout >= 0) {
-					out.on("close", function() {
-						setTimeout(download, program.timeout);
-					});
-				} else {
-					download();
-				}
+				out.on("close", function() {
+					setTimeout(download, program.timeout);
+				});
 			} else {
 				download();
 			}
 		}
 	}
 
-	download();
+	for(var i = 0; i < program.workers; i++) {
+		download();
+	}
 
 } else {
 	program.help();
