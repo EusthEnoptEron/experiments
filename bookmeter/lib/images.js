@@ -33,7 +33,7 @@ function loadImage(url) {
 					res.setEncoding('binary');
 
 					res.on('data', function(chunk){
-		    		imagedata += chunk
+		    			imagedata += chunk
 					})
 
 					res.on('end', function(){
