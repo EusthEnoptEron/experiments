@@ -24,39 +24,38 @@ class Fetcher
 
 
 	fetch: (url, cb) =>
-		body = ""
-
 		# Wait for http request to end
-		await http.get(url).on "response", (res) ->
+		http.get(url).on "response", (res) ->
 			res.setEncoding "utf8"
-			
+			body = ""
+
 			res.on "data", (chunk) ->
 				body += chunk
 
 			# End http request
-			res.on "end", defer err
-
-		cb cheerio.load(body)
+			await res.on "end", defer err
+			
+			cb cheerio.load(body)
 
 	###
 	Process a page number of the current fetcher task
 	###
 	process: (num, recursive, cb) =>
 		url = @opt.url
-		url += "&p" + num if num
+		url += "&p=" + num if num
 
-		await this.fetch url defer $
+		await this.fetch url, defer $
 
-		novels = Parser.getNovels $
+		novels = [Parser.getNovels $]
 		if recursive
 			await
 				pages = Parser.getPages $
 				for pageNum, i in pages
 					isLast = (i == pages.length - 1)
-					this.process pageNum, isLast, defer novels[i]
+					this.process pageNum, isLast, defer novels[i+1]
 		
 
-		cb _.flatten(_.values(novels))
+		cb _.flatten(novels)
 
 
 	fetchAll: (cb) =>
@@ -73,4 +72,6 @@ class Fetcher
 # Exports
 exports.Fetcher = Fetcher
 exports.fetch = (options) ->
-	return (new Fetcher(options)).fetchAll()
+	return new Promise (resolve, reject) ->
+		(new Fetcher options).fetchAll (novels) ->
+			resolve novels
