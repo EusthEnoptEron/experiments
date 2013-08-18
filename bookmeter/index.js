@@ -1,7 +1,7 @@
 var fs = require('fs'),
 	program = require("commander"),
 	fetch = require("./lib/ics/fetcher.js").fetch,
-	drawCovers = require("./lib/images.js").drawCovers;
+	drawCovers = require("./lib/ics/images.js").drawCovers;
 
 program
 	.usage("[options] <output>")
