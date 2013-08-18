@@ -1,7 +1,10 @@
+require("iced-coffee-script");
+
 var fs = require('fs'),
 	program = require("commander"),
-	fetch = require("./lib/ics/fetcher.js").fetch,
-	drawCovers = require("./lib/ics/images.js").drawCovers;
+	fetch = require("./lib/ics/fetcher").fetch,
+	drawCovers = require("./lib/ics/images").drawCovers;
+
 
 program
 	.usage("[options] <output>")
