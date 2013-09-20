@@ -11,7 +11,11 @@
   "dependencies": {
     "cheerio": ">=0.11.0",
     "canvas": "",
-    "async":""
+    "async": "",
+    "promise": "",
+    "underscore": "",
+    "commander": "",
+    "iced-coffee-script": "~1.6.3-e"
   },
   "author": "Simon Meer",
   "license": "BSD"
