@@ -1,4 +1,4 @@
-require("iced-coffee-script");
+require("iced-coffee-script/register");
 
 var fs = require('fs'),
 	program = require("commander"),
