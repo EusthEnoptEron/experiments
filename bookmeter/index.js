@@ -1,4 +1,5 @@
 require("iced-coffee-script");
+require('kal');
 
 var fs = require('fs'),
 	program = require("commander"),

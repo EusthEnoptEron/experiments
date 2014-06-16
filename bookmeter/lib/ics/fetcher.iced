@@ -2,6 +2,7 @@
 Promise = require "promise"
 Parser  = require "../parser"
 cheerio = require "cheerio"
+request = require "request"
 http    = require "http"
 fs      = require "fs"
 _       = require "underscore"
@@ -16,15 +17,18 @@ defaults =
 
 # Class definition
 class Fetcher
-	novels: []
-	results: {}
 	constructor: (options) ->
 		@opt = _.defaults options, defaults
 		@opt.url = @opt.baseUrl + @opt.uid + "/" + @opt.page
 
-
 	fetch: (url, cb) =>
+		await request url, defer err, response, body
+		cb cheerio.load(body)
+
+	fetchOld: (url, cb) =>
+		
 		# Wait for http request to end
+		
 		http.get(url).on "response", (res) ->
 			res.setEncoding "utf8"
 			body = ""

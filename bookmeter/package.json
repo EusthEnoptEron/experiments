@@ -15,7 +15,9 @@
     "promise": "",
     "underscore": "",
     "commander": "",
-    "iced-coffee-script": "~1.6.3-e"
+    "iced-coffee-script": "~1.6.3-e",
+    "kal": "~0.4.5",
+    "request": "~2.47.0"
   },
   "author": "Simon Meer",
   "license": "BSD"

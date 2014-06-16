@@ -21,6 +21,7 @@ module.exports = {
 		// Start at the current page indicator and process the next() until we 
 		// hit on .page_navi_hedge
 		var p = $(".page_navis span.now_page");
+
 		while((p = p.next().filter(":not(.page_navi_hedge)")).length) {
 			pages.push($(p).text().trim());
 		}
