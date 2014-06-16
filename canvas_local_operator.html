@@ -1,0 +1,312 @@
+<!doctype html>
+<html>
+	<head>
+		<title>IMG test</title>
+		<style>
+		canvas {
+			border: 2px solid #666;
+			margin: 30px auto;
+			background: #333;
+			border-radius: 5px/10px;
+
+			clear: both;
+		}
+		canvas.hover {
+			border-color: lightgreen;
+		}
+
+		table {
+			margin: 0 auto;
+			border-width: 0 0 1px 1px;
+			border-spacing: 0;
+			border-collapse: collapse;
+			border-style: solid;
+			background: white;
+		}
+
+		table td {
+			margin: 0;
+			padding: 4px;
+			border-width: 1px 1px 0 0;
+			border-style: solid;
+		}
+		
+		#masks {
+			float: left;
+			margin: 20px 50px;
+		}
+
+		.filter-mask {
+			float: left;
+			margin: 20px;
+		}
+
+		.add-button {
+			width: 60px;
+			line-height: 60px;
+			font-size: 30px;
+			text-align: center;
+		}
+
+		input {
+			line-height: 40px;
+			width: 40px;
+			font-size: 20px;
+			text-align: center;
+		}
+
+		body {
+			background: url("textures/congruent_outline.png");
+		}
+
+		#container {
+			width: 700px;
+			margin: 50px auto;
+			background: rgba(255,255,255,0.5);
+			text-align: center;
+		}
+		</style>
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script type="text/javascript" src="http://cdn.jsdelivr.net/underscorejs/1.4.3/underscore-min.js"></script>
+		<script type="text/javascript" src="http://cdn.jsdelivr.net/backbonejs/1.1.2/backbone-min.js"></script>
+
+		<script>
+$(function() {
+	var MAX_WIDTH  = 600,
+		MAX_HEIGHT = 400
+
+	var source = document.getElementById('source')
+	  , target = document.getElementById('target')
+	  , table  = document.getElementById('mask')
+	  , image  = null
+	  , button = document.getElementById('add-button')
+	  , masks  = []
+
+	var FilterMask = Backbone.View.extend({
+		tagName: "div",
+		className: "filter-mask",
+		template: _.template($("#table-template").text()),
+		events: {
+			"keyup table input": "onInputChange",
+			"keyup .divisor": "onDivisorChange",
+			"click input": "select"
+		},
+		initialize: function() {
+			this.data = [
+				[0, 0, 0],
+				[0, 1, 0],
+				[0, 0, 0]
+			]
+			this.divisor = 1
+			this.cols = 3
+			this.rows = 3
+		},
+		render: function() {
+			this.$el.html(this.template({
+				vals: this.data,
+				rows: this.rows,
+				cols: this.cols,
+				total: this.getTotal(),
+				divisor: this.divisor
+			}))
+
+			return this;
+		},
+		select: function(e) {
+			$(e.target).select()
+		},
+		getTotal: function() {
+			return _.reduce(_.flatten(this.data), function(memo, v) { return memo + v }, 0)
+		},
+		onInputChange: function(e) {
+			var p = $(e.target).parent()
+			var col = p.data("col"),
+				row = p.data("row")
+
+			this.data[row][col] = e.target.value*1
+			this.$(".total").val(this.getTotal())
+
+			drawTarget()
+
+		},
+		onDivisorChange: function(e) {
+			this.divisor = e.target.value*1
+			drawTarget()
+		},
+		apply: function(x, y, step, cb) {
+		 	var winStartX = -Math.floor(this.cols / 2),
+		    winStartY = -Math.floor(this.rows / 2),
+		    winEndX = Math.ceil(this.cols / 2),
+		    winEndY = Math.ceil(this.rows / 2),
+		    divisor = this.divisor
+
+		    if(divisor == 0) return;
+
+			for(var i = winStartX; i < winEndX; i++) {
+    			for(var j = winStartY; j < winEndY; j++) {
+    				ix = x + (i * step)
+    				jy = y + (j * step)
+
+    				if(ix < 0 || jy < 0) continue;
+    				// if(ix >= pWidth*step || jy >= pHeight*step) continue;
+
+    				cb( ix, jy, this.data[-winStartY + j][-winStartX + i] / divisor)
+    			}
+    		}
+
+		}
+	})
+
+	function highlight(obj) {
+		$(obj).addClass("hover");
+	}
+	function unhighlight(obj) {
+		$(obj).removeClass("hover");
+	}
+
+	function setImage(img) {
+		if(img.width <= 0 || img.height <= 0) return
+
+		image = img
+		var ratio = Math.min(1, MAX_WIDTH / img.width)
+
+		source.height = target.height = image.height * ratio
+
+		drawSource()
+		drawTarget()
+	}
+
+	function drawSource() {
+		if(image) {
+			var ctx = source.getContext("2d")
+			ctx.drawImage(image, 0, 0, MAX_WIDTH, source.height)
+		}
+	}
+
+	function drawTarget() {
+		if(image) {
+			var ctx = target.getContext("2d"),
+			    win = getData(),
+			    pix = source.getContext("2d").getImageData(0, 0, source.width, source.height)
+			    data = pix.data,
+			    pWidth = source.width,
+			    pHeight = source.height
+
+
+						
+			var step = 4
+			for(var x = 0; x < pWidth*step; x += step) {
+				for(var y = 0; y < pHeight*step; y += step) {
+					
+					var origin = y * pWidth + x
+					masks.forEach(function(mask) {
+						var r, g, b; r = g = b = 0
+						mask.apply(x, y, step, function(ix, iy, factor) {
+							var o = iy * pWidth + ix
+							
+							r += data[o] * factor
+							g += data[o + 1] * factor
+							b += data[o + 2] * factor
+						});
+						data[origin] = Math.min(255, Math.max(0, r)) 
+						data[origin + 1] = Math.min(255, Math.max(0, g))
+						data[origin + 2] = Math.min(255, Math.max(0, b))
+					});
+					
+		    	}
+		    }
+	
+			ctx.putImageData(pix, 0, 0)  
+		}
+	}
+
+	function getData() {
+		return $("input", table).map(function () {
+			return $(this).val() * 1
+		});
+	}
+
+	function getTableHeight() {
+		return $("tr",  table).length
+	}
+
+	function getTableWidth() {
+		return $("tr:first td", table).length
+	}
+	function addMask() {
+		var mask = new FilterMask()
+		masks.push(mask)
+
+		$(button).before(mask.render().el)
+		return mask
+	}
+
+	function init() {
+		// Hook up event listeners
+		source.addEventListener("dragenter", function(e) {
+			highlight(this)
+			e.preventDefault()
+		}, false)
+		source.addEventListener("dragover", function(e) {
+			highlight(this)
+			e.preventDefault()
+		}, false)
+		source.addEventListener("dragleave", function(e) {
+			unhighlight(this)
+			e.preventDefault()
+		}, false)
+		source.addEventListener("drop", function(e) {
+			unhighlight(this)
+			e.preventDefault()
+			
+			var file = event.dataTransfer.files[0]
+			  , reader = new FileReader()
+
+			reader.onload = function(e) {
+				var img = new Image();
+				img.onload = setImage.bind(this, img);
+				img.src = e.target.result;
+			}
+
+			reader.readAsDataURL(file)
+		}, false);
+
+		$("button",  button).click(function() {
+			addMask()
+		});
+
+		addMask()
+	};
+
+	init();
+});
+		</script>
+	</head>
+	<body>
+		<script id="table-template" type="text/underscore-template">
+<table>
+	<% for(var y = 0; y < rows; y++) { %>
+		<tr>
+		<% for(var x = 0; x < cols; x++) { %>
+			<td data-row="<%= y %>" data-col="<%= x %>">
+				<input type="text" value="<%= vals[y][x] %>">
+			</td>
+		<% } %>
+		</tr>
+	<% } %>
+</table>
+<input type="text" value="/" disabled>
+<input class="divisor" type="text" value="<%= divisor %>">
+<input class="total" type="text" value="<%= total %>" disabled>
+		</script>
+		<div id="container">
+			<canvas id="source" width="600" height="400"></canvas>
+			<div id="masks">
+				<div class="filter-mask" id="add-button">
+					<button class="add-button">+</button>
+				</div>
+			</div>
+			<canvas id="target" width="600" height="400"></canvas>
+		</div>
+	</body>
+</html>

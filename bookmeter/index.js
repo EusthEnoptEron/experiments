@@ -1,4 +1,5 @@
 require("iced-coffee-script");
+//require("iced-coffee-script/register");
 require('kal');
 
 var fs = require('fs'),
