@@ -8,12 +8,11 @@ async        = require "async"
 http         = require "http"
 fs           = require "fs"
 
-
 loadImage = (url, cb) ->
 	# prepare variables
 	cacheDir = __dirname + "/../../cache"
-	hash = crypto.createHash("md5").update(url).digest("hex")
-	path = cacheDir + "/" + hash
+	filename = url.match /[^\/]+$/
+	path = cacheDir + "/" + filename
 
 	# check for cache dir
 	await fs.exists cacheDir, defer exists
@@ -52,6 +51,8 @@ exports.drawCovers = (novels, out, opts) ->
 
 	novels = shuffleArray novels if opts.shuffle
 
+	novels.reverse() if opts.reverse
+
 	# creating an image
 	canvas = new Canvas width, height
 	ctx    = canvas.getContext "2d"
@@ -62,9 +63,12 @@ exports.drawCovers = (novels, out, opts) ->
 	ctx.fillStyle = "rgb(111, 197, 203)"
 	ctx.globalAlpha = 1
 	ctx.lineWidth = 1
-	ctx.textBaseline="hanging"
-	ctx.textAlign="center"
-
+	ctx.textBaseline = "hanging"
+	ctx.textAlign = "center"
+	fontSize = (opts.imgWidth * opts.imgHeight * 0.2) / 1000
+	imageSize = [ opts.imgWidth - opts.paddings * 2,
+	 opts.imgHeight - opts.paddings * 2 ]
+	# console.log fontSize
 	await
 		novels.forEach (novel, i) ->
 			((autocb) ->
@@ -73,6 +77,8 @@ exports.drawCovers = (novels, out, opts) ->
 				
 				# Load image
 				await loadImage novel.url, defer img
+
+				ctx.beginPath()
 
 				x = col * (opts.imgWidth + opts.margins)
 				y = row * (opts.imgHeight + opts.margins)
@@ -88,27 +94,42 @@ exports.drawCovers = (novels, out, opts) ->
 				
 				# Draw image
 				ctx.globalAlpha = 1
+				ctx.save()
+				ctx.fillStyle = opts.background
+				ctx.rect(
+					x + opts.paddings,
+				    y + opts.paddings,
+				    imageSize[0],
+				    imageSize[1]
+				)
+				ctx.fill()
+				ctx.clip()
+
 				ctx.drawImage(
 				    img,
 				    x + opts.paddings,
 				    y + opts.paddings,
-				    opts.imgWidth - opts.paddings * 2,
-				    opts.imgHeight - opts.paddings * 2)
+				    imageSize[1] / img.height * img.width,
+				    imageSize[1] 
+				)
+
+				ctx.restore()
 
 				if opts.text 
 					ctx.globalAlpha = 0.8
 
 					ctx.fillRect(x,
 					          y + opts.imgHeight * 0.8,
-					          opts.imgWidth,
-					          opts.imgHeight * 0.2)
+					          imageSize[0],
+					          imageSize[1] * 0.2)
 					ctx.globalAlpha = 1
 				
 					ctx.save()
-					ctx.lineWidth = 2
-					ctx.font = "12px " + opts.font
+					ctx.lineWidth = 0.8
+					ctx.font = fontSize + "px " + opts.font
 					ctx.fillStyle = "#FFFFFF"
-					wrapText(ctx, novel.name, x + opts.imgWidth/2, y + opts.imgHeight * .8, opts.imgWidth - opts.paddings * 2, 15)
+					ctx.strokeStyle = "black"
+					wrapText(ctx, novel.name, x + opts.imgWidth/2, y + opts.imgHeight * .8, opts.imgWidth - opts.paddings * 2, fontSize + 3, false)
 					ctx.restore()
 				
 

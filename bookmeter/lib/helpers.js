@@ -1,4 +1,4 @@
-exports.wrapText = function(context, text, x, y, maxWidth, lineHeight) {
+exports.wrapText = function(context, text, x, y, maxWidth, lineHeight, stroke) {
 	var words = text.split('');
 	var line = '';
 
@@ -8,6 +8,9 @@ exports.wrapText = function(context, text, x, y, maxWidth, lineHeight) {
 	  var testWidth = metrics.width;
 	  if(testWidth > maxWidth) {
 	    context.fillText(line, x, y);
+	    if(stroke)
+			context.strokeText(line, x, y);
+
 	    line = words[n] + ' ';
 	    y += lineHeight;
 	  }
@@ -16,6 +19,9 @@ exports.wrapText = function(context, text, x, y, maxWidth, lineHeight) {
 	  }
 	}
 	context.fillText(line, x, y);
+
+	if(stroke)
+		context.strokeText(line, x, y);
 };
 
 

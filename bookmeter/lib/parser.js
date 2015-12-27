@@ -9,7 +9,7 @@ module.exports = {
 
 		$(".book").each(function() {
 			novels.push({
-				url: $(this).find(".book_box_book_image img").attr("src"),
+				url: $(this).find(".book_box_book_image img").attr("src").replace(/(.+amazon.+)SL150/, "$1SL2500"),
 				name: $(this).find(".book_box_book_title").text().match(/^[^(]+/)[0].trim()
 			});
 		});
