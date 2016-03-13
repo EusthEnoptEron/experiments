@@ -1,0 +1,84 @@
+# Libraries
+Promise = require "promise"
+Parser  = require "../parser"
+cheerio = require "cheerio"
+http    = require "http"
+fs      = require "fs"
+_       = require "underscore"
+
+# Defaults
+defaults = 
+  uid: 49530
+  page: "booklist"
+  baseUrl: "http://book.akahoshitakuya.com/u/"
+  data: undefined
+
+
+# Class definition
+class Fetcher
+  method initialize(options)
+    this.opt = _.defaults options, defaults
+    this.opt.url = this.opt.baseUrl + this.opt.uid + "/" + this.opt.page
+
+  method fetchAll(cb)
+    if this.opt.data
+      # We've already got the needed data
+      wait for data from fs.readFile this.opt.data
+      cb(null, JSON.parse data)
+    else
+      wait for novels from process this.opt.url, 0, true
+      cb(null, novels)
+
+
+
+task fetch(url)
+  res = undefined
+  # Wait for http request to end
+  try
+    wait for res from http.get(url).on "response"
+  catch e
+    res = e
+
+  res.setEncoding "utf8"
+  body = ""
+  res.on "data", (chunk) ->
+    body += chunk
+
+  # End http request
+  try
+    wait for something from res.on("end")
+  catch
+    1
+  return cheerio.load(body)
+
+
+###
+Process a page number of the current fetcher task
+###
+task process(baseUrl, num, recursive)
+  url = baseUrl
+  url += "&p=" + num if num
+
+  wait for $ from fetch url
+  novels = [Parser.getNovels($)]
+  print num + " / " + novels.length
+  pages = Parser.getPages $
+
+  if recursive and pages.length
+    lastPage = pages[pages.length - 1]
+    for parallel pageNum in pages
+      isLast = pageNum is lastPage
+      wait for sub_novels from process baseUrl, pageNum, isLast
+      novels.push sub_novels
+  print num + " / " + novels.length
+  return _.flatten(novels)
+
+
+# Exports
+module.exports.Fetcher = Fetcher
+module.exports.fetch = function(options)
+  return new Promise((resolve, reject) ->
+    fetcher = new Fetcher options 
+    wait for novels from fetcher.fetchAll()
+    resolve novels
+  )
